@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_レイヤー_1" data-name="レイヤー_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 823.74 229.33">
+  <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #7cccea;
+      }
+
+      .st1 {
+        fill: #575554;
+      }
+
+      .st2 {
+        fill: #bff5ff;
+      }
+    </style>
+  </defs>
+  <rect class="st0" x="658.69" y="64.14" width="112.12" height="164.99"/>
+  <polyline class="st0" points="770.81 146.63 770.81 64.14 823.74 64.14"/>
+  <polyline class="st0" points="823.74 229.13 770.81 229.13 770.81 146.63"/>
+  <rect class="st0" x="52.93" y="64.14" width="112.12" height="164.99" transform="translate(217.99 293.27) rotate(180)"/>
+  <polyline class="st0" points="52.93 146.63 52.93 229.13 0 229.13"/>
+  <polyline class="st0" points="0 64.14 52.93 64.14 52.93 146.63"/>
+  <rect class="st2" x="100.15" width="623.91" height="164.99"/>
+  <polyline class="st1" points="100.15 164.99 165.06 164.99 165.06 229.13"/>
+  <polyline class="st1" points="724.06 164.99 658.69 164.99 658.69 229.13"/>
+</svg>

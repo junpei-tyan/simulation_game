@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_レイヤー_1" data-name="レイヤー_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 426 1920">
+  <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: none;
+      }
+
+      .st1 {
+        fill: #c7b28f;
+      }
+
+      .st2 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="st0" width="426" height="1920"/>
+    </clipPath>
+  </defs>
+  <g class="st2">
+    <g>
+      <path class="st1" d="M396.5,103.5l19.5-99.5-14.5-23h55.5v1957.5h-68.5l35-66-52-24h44.5l-14.5-41,14.5-80v-194l-2-132-27-12.5h14.5l-20.5-11h35l-8.5-61-7.5-6,16-4-8-82,8-284-11.5-2,11.5-26.5h-27.5l27.5-11v-208.5l-44-10.5,44-9-14.5-99,14.5-114.5v-113h-14.5l14.5-10v-108.5l-64-11,64-15.5-19.5-98.5Z"/>
+      <path class="st1" d="M287,212l41.5,5.5h-68.5l27-5.5Z"/>
+      <path class="st1" d="M341,1848.5h22l-11-4-11,4Z"/>
+      <path class="st1" d="M358,1382.5l15-4.5h-30l15,4.5Z"/>
+    </g>
+  </g>
+</svg>
