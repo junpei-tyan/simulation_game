@@ -1,0 +1,692 @@
+@charset "UTF-8";
+
+img {
+    -webkit-user-drag: none; /* 画像のドラッグを無効 */
+}
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #fff;
+    opacity: 0;
+    transition: opacity 1.5s;
+    z-index: -50;
+}
+.first_loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #fff;
+    opacity: 1;
+    z-index: 50;
+}
+
+/* ----------↓ title.html ↓---------- */
+
+.title_body {
+    background: url(../img/background/title_background.png) no-repeat;
+    background-size: 100%;
+}
+.title_logo {
+    display: block;
+    width: 40vw;
+    height: auto;
+    margin: 100px auto 0 auto;
+}
+.Enter_text {
+    display: block;
+    width: 250px;
+    margin: 75px auto 0 auto;
+    font-family: "Noto Serif JP", serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 40px;
+    text-align: center;
+    cursor: pointer;
+}
+.gender_option_cover {
+    position: relative;
+    top: -750px;
+    display: none; /* デフォルトは非表示 */
+    /* animation: title_animation 1s; */
+}
+/* @keyframes title_animation {
+    0% {
+        right: -1000px
+    }
+    100% {
+        right: 0;
+    }
+} */
+.gender_option_box {
+    position: absolute;
+    display: flex;
+    top: -100px;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url(../img/title_img/title_bg2.png);
+    background-size: 100%;
+    text-align: center;
+    margin: 100px 0;
+    z-index: 12.5;
+}
+.gender_option_box>div {
+    width: 50%;
+}
+.gender_option_cover>h2 {
+    position: absolute;
+    display: block;
+    top: 0;
+    width: 100%;
+    padding: 85px 0 0 0;
+    color: #fff;
+    font-size: 80px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10;
+}
+.gender_option_box img {
+    position: relative;
+    top: 275px;
+}
+.gender_option_box h3 {
+    position: relative;
+    top: 225px;
+    font-size: 50px;
+    font-weight: bold;
+    color: #fff;
+}
+.gender_button1 {
+    position: relative;
+    top: 700px;
+    left: 150px;
+    padding: 20px 75px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #fff;
+    background: #2D86D3;
+    border-radius: 30px;
+}
+.gender_button2 {
+    position: relative;
+    top: 700px;
+    left: 530px;
+    padding: 20px 75px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #fff;
+    background: #D53957;
+    border-radius: 30px;
+}
+.character_option_box {
+    position: relative;
+    display: none; /* デフォルトは非表示 */
+    height: 100vh;
+    z-index: 20;
+}
+.character_option {
+    width: 19.5vw;
+    background-color: #891d1dcc;
+    margin: 0 auto;
+    border: solid 5px #FFC670;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 1s;
+}
+.character_option:nth-of-type(2) {
+    z-index: 5;
+}
+.character_option:nth-of-type(3) {
+    z-index: 10;
+}
+.character_option:nth-of-type(4) {
+    z-index: 15;
+}
+.character_option:nth-of-type(5) {
+    z-index: 20;
+}
+.character_option:nth-of-type(2n) { /* 2の倍数(偶数)のimgのみにstyleを適用 */
+    background-color: #4a3a88c9;
+}
+.character_option>p {
+    position: relative;
+    left: -33%;
+    bottom: 89%;
+    font-size: 112px;
+    color: #fff;
+    font-family: serif;
+    z-index: 0;
+    transform: rotate(90deg);
+}
+.character_option>img {
+    z-index: 5;
+    transition: all 1s;
+}
+.character_option:nth-of-type(2)>img {
+    top: 3%;
+}
+.character_option:nth-of-type(5)>img {
+    top: 10%;
+}
+.character_option>img:nth-of-type(1) {
+    position: relative;
+    right: 20px;
+    width: 220%;
+    height: 100vh;
+    margin: 0 auto;
+}
+/* .character_option:nth-of-type(2)>img {
+    top: 3.5%;
+}
+.character_option:nth-of-type(5)>img {
+    top: 10%;
+} */
+.character_option>img:nth-of-type(2) {
+    position: relative;
+    bottom: 32.5%;
+    cursor: pointer;
+}
+div:has(> .start_button) {
+    width: 18vw;
+    margin: 0 auto;
+}
+.start_button {
+    display: block;
+    border: solid 1px #111;
+    border-radius: 25px;
+    margin: 0 0 80px 0;
+    padding: 12.5px 0;
+    text-align: center;
+    font-weight: bold;
+}
+.name_input_box {
+    display: none; /* デフォルトは非表示 */
+    position: relative;
+    z-index: 1;
+}
+.player_name_label {
+    display: block;
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-weight: bold;
+}
+.player_name_input {
+    display: none;
+    position: relative;
+    width: 40vw;
+    height: 60px;
+    top: 65px;
+    margin: 0 auto;
+    padding: 0 30px;
+    background-color: #f9e8f8;
+    font-weight: bold;
+    font-size: 130%;
+    border: solid 2px rgb(223, 112, 112);
+    border-radius: 30px;
+}
+.name_button {
+    display: none;
+    position: relative;
+    color: rgb(223, 112, 112);
+    font-family: "Noto Serif JP", serif;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 130%;
+    top: 95px;
+    padding: 17.5px 75px;
+    margin: 0 auto;
+    border: solid 2px rgb(223, 112, 112);
+    border-radius: 30px;
+    background-color: #f9e8f8;
+}
+.name_button:hover {
+    color: rgb(255, 0, 0);
+}
+.player_name_text {
+    text-align: center;
+}
+.game_start_box {
+    display: none; /* デフォルトは非表示 */
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------------------------------- */
+
+
+
+/* ----------↓ ending.html ↓---------- */
+
+.ending_body {
+    background-image: url(../img/background/4F_space1.jpg);
+    background-size: 100%;
+    backdrop-filter: blur(10px);
+}
+.option_box_link {
+    position: relative;
+    display: block;
+    width: 80%;
+    margin: 0 auto;
+    z-index: 10;
+}
+.option_box_link:nth-of-type(2) {
+    margin: 30px auto 0 auto;
+}
+.ending_option {
+    display: inline-block;
+    width: 45vw;
+    height: 100vh;
+    background-color: #E0CBA8;
+    overflow: hidden;
+}
+.ending_option>h1 {
+    font-size: 60px;
+    font-family: "Noto Serif JP", serif;
+    font-weight: bold;
+    text-align: center;
+    margin: 150px 0 25px 0;
+}
+.ending_option>p {
+    font-size: 20px;
+    text-align: center;
+}
+.ending_option>p:nth-of-type(1) {
+    margin: 0 0 70px 0;
+    font-weight: bold;
+    font-size: 30px;
+}
+.ending_option>p:nth-of-type(2) {
+    margin: 0 0 15px 0;
+}
+.ending_option>p:nth-of-type(3) {
+    margin: 0 0 75px 0;
+}
+.ending_option>button:hover {
+    width: 80%;
+}
+.ending_option>button:nth-of-type(1) {
+    margin: 0 auto 25px auto;
+}
+.ending_dialogue_img {
+    position: relative;
+    right: 81%;
+    transform: rotate(90deg);
+}
+.ending_character_img {
+    position: absolute;
+    top: 30px;
+    right: 5vw;
+    width: 45vw;
+    height: auto;
+}
+
+/* ---------------------------------- */
+
+
+
+/* ---------↓ end_roll.html ↓--------- */
+
+.end_roll_body {
+    overflow: hidden;
+}
+.end_roll_box {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
+}
+.end_roll {
+    position: relative;
+    color: #fff;
+    text-align: center;
+    font-family: "source-han-sans-japanese", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+    padding: 100px 0 350px 0;
+    animation: end_roll 30s linear forwards;
+}
+@keyframes end_roll {
+    0% {
+        bottom: -100%;
+    }
+    100% {
+        bottom: 1000%;
+    }
+}
+.end_roll>h2 {
+    font-size: 36px;
+    margin: 250px 0;
+}
+.end_roll>h2:nth-last-of-type(1) {
+    margin: 500px 0 0 0;
+}
+.end_roll h3 {
+    font-size: 28px;
+}
+.end_roll>h3 {
+    margin: 40px 0 0 0;
+}
+.end_roll_flex {
+    display: flex;
+    width: 45%;
+    justify-content: space-around;
+    margin: 40px auto 0 auto;
+}
+.end_roll>p {
+    font-size: 18px;
+    margin: 500px 0 0 0;
+}
+.end_roll span {
+    font-size: 22px;
+    padding: 0 0 0 5px;
+}
+.end_roll_skip {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    z-index: 75;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+/* ---------------------------------- */
+
+
+
+/* ----------↓ index.html ↓---------- */
+
+.main_body>main {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    background: url(../img/background/2F_space2.jpg) no-repeat;
+    background-size: 100%;
+}
+.log_box {
+    position: absolute;
+    background-image: url(../img/textures/log_button.svg);
+    background-color: #C7B28F;
+    background-size: cover;
+    right: 35px;
+    width: 65px;
+    height: 65px;
+    border-radius: 15%;
+    margin-top: 30px;
+    z-index: 40;
+    cursor: pointer;
+}
+.log_icon_p {
+    text-align: center;
+}
+.log_icon {
+    width: 25px;
+    height: auto;
+    margin: 17.5px 0 0 0;
+}
+.log_sidebar {
+    display: none; /* デフォルトは非表示 */
+    position: absolute;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    border-left: solid 1px #111;
+    z-index: 30;
+    transition: all 0.75s;
+}
+.log_sidebar_animation {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111;
+    z-index: 30;
+    transition: all 0.5s;
+
+    /* 追加するプロパティ */
+    transform: translateX(0);
+    overflow: scroll;
+}
+.log_sidebar_text {
+    margin-top: 50px;
+}
+.log_text_box {
+    width: 80%;
+    background-color: rgba(205, 203, 199, 0.5);
+    padding: 20px 50px;
+    font-size: 18px;
+    text-align: left;
+    margin: 50px auto;
+    border-radius: 10px;
+    color: #fff;
+}
+.log_name_tag {
+    position: relative;
+    width: 35%;
+    bottom: 35px;
+    padding: 15px 0 15px 0;
+    background-image: url(../img/textures/name_tag.svg);
+    background-color: #C7B28F;
+    background-size: cover;
+    border-radius: 20px;
+    text-align: center;
+    font-family: "Noto Serif JP", serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 18px;
+    color: #111;
+}
+.log_text {
+    font-family: "Kaisei Opti", serif;
+    font-weight: 400;
+    font-style: normal;
+    padding: 0 0 40px 0;
+}
+.character_img_box {
+    position: relative;
+    top: 0;
+    user-select: none;
+    background-color: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(0px);
+    transition: backdrop-filter 1s ease-in-out;
+}
+.character_img_box_option {
+    position: relative;
+    top: 0;
+    transition: backdrop-filter 1s ease-in-out;
+
+    /* 追加するプロパティ */
+    backdrop-filter: blur(10px);
+}
+.character_img_p {
+    text-align: center;
+}
+.character_img {
+    width: 65vh;
+    height: auto;
+    padding-top: 50px;
+}
+.text_window {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    bottom: 0;
+    width: 100%;
+    height: 250px;
+    color: #111;
+    background-image: url(../img/textures/dialogue.svg);
+    background-color: #E0CBA8;
+    transition: 1s all;
+}
+.character_name {
+    width: 250px;
+    padding: 35px;
+    background: #fff;
+    border: solid 0.5px #111;
+    border-radius: 20px;
+    color: #111;
+}
+.current_text {
+    font-family: "Kaisei Opti", serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 25px;
+    text-align: center;
+    letter-spacing: 0.85px;
+    margin: 0 auto;
+}
+.current_text_option {
+    /* 追加、変更するプロパティ */
+    font-family: "Kaisei Opti", serif;
+    font-weight: 400;
+    font-size: 23px;
+    height: auto;
+    text-align: center;
+    padding: 82.5px 0 62.5px 0;
+}
+.next_button {
+    display: none; /* デフォルトは非表示 */
+    position: absolute;
+    bottom: 20%;
+    right: 5%;
+    width: 32px;
+    height: 28px;
+    transition: 0.2s all;
+    background-image: url(../img/icon/next_button.svg);
+    animation: next_button_animation 1.5s infinite;
+}
+
+@keyframes next_button_animation {
+    0%{
+        transform: translateY(0);
+    }
+    25%{
+        transform: translateY(32.5%);
+    }
+    50%{
+        transform: translateY(0);
+    }
+    100%{
+        transform: translateY(0);
+    }
+}
+
+.option {
+    display: none; /* デフォルトは非表示 */
+    width: 60%;
+    height: 50%;
+    margin: 0 auto;
+    color: lightgray;
+}
+.option>button:nth-of-type(1) {
+    margin-bottom: 20px;
+}
+.option_box {
+    position: relative;
+    display: flex;
+    width: 100%;
+    background-image: url(../img/textures/choice_button_inactive.svg);
+    background-color: #2E2836;
+    background-size: cover;
+    font-size: 20px;
+    font-family: "Noto Serif JP", serif;
+    color: #ffffffcd;
+    border-radius: 25px;
+    cursor: pointer;
+    gap: 25px;
+    padding: 20px 45px;
+    transition: 0.4s all;
+}
+.option_box:hover, .option_hovered {
+    position: relative;
+    display: flex;
+    width: 100%;
+    background-size: cover;
+    font-size: 20px;
+    font-family: "Noto Serif JP", serif;
+    border-radius: 25px;
+    cursor: pointer;
+    gap: 25px;
+    padding: 20px 45px;
+    transition: 0.4s all;
+
+    /* 追加、変更するプロパティ */
+    background-image: url(../img/textures/choice_button_active.svg);
+    background-color: #E87C7F;
+    color: #fff;
+    filter: drop-shadow(0 0 10px #E87C7F);
+}
+.option_box_animation {
+    position: relative;
+    display: flex;
+    width: 100%;
+    background-size: cover;
+    font-size: 20px;
+    font-family: "Noto Serif JP", serif;
+    border-radius: 25px;
+    cursor: pointer;
+    gap: 25px;
+    padding: 20px 45px;
+    transition: 0.4s all;
+    background-image: url(../img/textures/choice_button_active.svg);
+    background-color: #E87C7F;
+    color: #fff;
+    filter: drop-shadow(0 0 10px #E87C7F);
+
+    /* 追加するプロパティ */
+    animation: option_box_animation 0.25s linear;
+}
+@keyframes option_box_animation {
+    0% {
+        transform: perspective(100px) translateZ(0);
+    }
+    50% {
+        transform: perspective(100px) translateZ(-4px);
+    }
+    100% {
+        transform: perspective(100px) translateZ(0);
+    }
+}
+.option_box:hover::after, .option_hovered::after {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    width: calc(100% - 10px);
+    height: calc(63px - 10px);
+    z-index: 100;
+    border-radius: 20px;
+    border: solid 3px #E0CBA8;
+}
+.name_tag {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -50%);
+    width: 475px;
+    height: auto;
+    background-image: url(../img/textures/name_tag.svg);
+    background-color: #C7B28F;
+    background-size: cover;
+    border-radius: 20px;
+    padding: 15px;
+    text-align: center;
+    filter: drop-shadow(0 0 10px #2E2836);
+}
+.name_tag h1 {
+    font-family: "Noto Serif JP", serif;
+    font-weight: 600;
+    font-style: normal;
+    font-size: 22px;
+}
+
+/* ---------------------------------- */
