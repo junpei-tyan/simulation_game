@@ -1,87 +1,83 @@
 // mp3ファイルを読み込み
-const next_text_sound = new Audio("../audio/next_button.mp3");
-const log_close_sound = new Audio("../audio/log_close_button.mp3");
-const game_start_sound = new Audio("../audio/game_start.mp3");
+const nextTextSound = new Audio("../audio/next_button.mp3");
+const logCloseSound = new Audio("../audio/log_close_button.mp3");
+const gameStartSound = new Audio("../audio/game_start.mp3");
 
-// 各処理のグローバル切り替えフラグ
-let first_next_button_animation = true; // 次へボタンのアニメーションの切り替え
-let text_display_flg = false; // 次へボタンの関数の実行切り替え
-let log_sidebar_flg = false // サイドバーの表示切り替え
-let name_tag_flg = false; // ネームタグの表示切り替え
-let log_animation_flg = false; // ログの処理実行切り替え
-let log_next_flg = false; // ログを開いている間のEnterキー実行切り替え
-let option_flg = false; // 選択肢の処理実行切り替え
-let player_text_flg = false; // ログに追加するテキストの切り替え
-let option_selected_flg = false; // 選択肢を選択した時のフラグ
-let text_skip_flg = false; // テキストをキャンセルするためのフラグ
-let narration_flg = false; // ナレーションなどのセリフ切り替えフラグ
-let nameless_flg = false; // プレイヤー、キャラクター以外のセリフ切り替えフラグ
-let loading_flg = false; // ローディング処理の切り替えフラグ
-let direct_option_flg = false; // 選択肢のテキスト切り替えフラグ
-let end_flg = false; // ゲーム終了の切り替えフラグ
-let game_start_flg = false; // ゲームスタートの切り替えフラグ
+// 各処理の切り替えフラグ
+let firstNextButtonAnimation = true; // 次へボタンのアニメーションの切り替え
+let textDisplayFlg = false; // 次へボタンの関数の実行切り替え
+let logSidebarFlg = false // サイドバーの表示切り替え
+let nameTagFlg = false; // ネームタグの表示切り替え
+let logAnimationFlg = false; // ログの処理実行切り替え
+let logNextFlg = false; // ログを開いている間のEnterキー実行切り替え
+let optionFlg = false; // 選択肢の処理実行切り替え
+let playerTextFlg = false; // ログに追加するテキストの切り替え
+let optionSelectedFlg = false; // 選択肢を選択した時のフラグ
+let textSkipFlg = false; // テキストをキャンセルするためのフラグ
+let narrationFlg = false; // ナレーションなどのセリフ切り替えフラグ
+let namelessFlg = false; // プレイヤー、キャラクター以外のセリフ切り替えフラグ
+let loadingFlg = false; // ローディング処理の切り替えフラグ
+let directOptionFlg = false; // 選択肢のテキスト切り替えフラグ
+let endFlg = false; // ゲーム終了の切り替えフラグ
+let gameStartFlg = false; // ゲームスタートの切り替えフラグ
 
 // 選択肢の切り替えフラグ
-let option1_flg = false;
-let option2_flg = false;
+let option1Flg = false;
+let option2Flg = false;
 
-const name_tag = document.getElementById("name_tag_h1"); // ネームタグをグローバルで宣言
-const character_img = document.getElementById("character_img"); // キャラクターの画像をグローバルで宣言
+const nameTag = document.getElementById("nameTag_h1"); // ネームタグをグローバルで宣言
+const characterImage = document.getElementById("characterImage"); // キャラクターの画像をグローバルで宣言
 
-const character_name = localStorage.getItem("character_name"); //ローカルストレージから取得したキャラクター名をグローバルで宣言
-const player_name = localStorage.getItem("player_name"); //ローカルストレージから取得したプレイヤー名をグローバルで宣言
+const characterName = localStorage.getItem("characterName"); //ローカルストレージから取得したキャラクター名をグローバルで宣言
+const playerName = localStorage.getItem("playerName"); //ローカルストレージから取得したプレイヤー名をグローバルで宣言
 
-// リピートするアニメーションの関数をグローバル関数として定義
-let repeat_animation;
-
-const current_text = document.getElementById("current_text"); // 現在のテキストを取得
-let current_index = 0;
-let next_text_num = 0; // 表示するテキストのリスト番号
-let favourable_impression = 50; // 好感度
-let first_person = localStorage.getItem("gender"); // 一人称
+const currentText = document.getElementById("currentText"); // 現在のテキストを取得
+let currentIndex = 0;
+let nextTextNum = 0; // 表示するテキストのリスト番号
+let favourableImpression = 50; // 好感度
+let firstPerson = localStorage.getItem("gender"); // 一人称
 
 // ページのURLを取得
 const url = location.href;
 
 // 各ルートの切り替えフラグ
-let root_list = {
-    Kitamura_root_flg: true,
-    Hukaya_root_flg: true,
-    Komatsu_root_flg: true,
-    Hashidume_root_flg: true,
-    Katura_root_flg: true,
+let rootList = {
+    kitamuraRootFlg: true,
+    hukayaRootFlg: true,
+    komatsuRootFlg: true,
+    hashidumeRootFlg: true,
+    katuraRootFlg: true,
 }
 
-let delivery_text = "";
-let delivery_text_list = [];
-let delivery_img = "";
+let deliveryTextList = [];
+let deliveryImage = "";
 
 // index.htmlのみ有効
 if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/index.html") {
     // Keydownイベント
     document.addEventListener("keydown", function(event) {
-        if (option_flg && !log_sidebar_flg) { // 選択肢が表示されている時のみ有効
+        if (optionFlg && !logSidebarFlg) { // 選択肢が表示されている時のみ有効
             if (event.key == "1" || event.key == "2") {
                 option(Number(event.key));
-                next_text_sound.play(); // mp3ファイルを再生
+                nextTextSound.play(); // mp3ファイルを再生
             }
         } else {
-            if (event.key == "Enter" && text_display_flg && !log_next_flg) {
-                next_text(event);
+            if (event.key == "Enter" && textDisplayFlg && !logNextFlg) {
+                nextText(event);
             }
         }
 
         // Escapeキーを押すとログを表示
         if (event.key == "Escape") {
-            log_animation();
+            logAnimation();
         }
     });
 
     // 一番最初に表示されるセリフ
-    window.onload = function() {
+    window.onload = () => {
         const loading = document.getElementById("loading");
-        const name_tag_box = document.getElementById("name_tag");
-        let text_list = [];
+        const nextTagBox = document.getElementById("nameTag");
+        let textList = [];
         loading.className = "first_loading";
 
         setTimeout(() => {
@@ -90,77 +86,77 @@ if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/
             loading.className = "loading";
             loading.style.zIndex = 50;
             loading.style.opacity = 0;
-            name_tag.textContent = player_name; // ネームタグにプレイヤー名を挿入
+            nameTag.textContent = playerName; // ネームタグにプレイヤー名を挿入
 
-            if (character_name == "キタムラ") { // 喜多村さんルート
-                for (let key in root_list) {
-                    if (key !== "Kitamura_root_flg") {
-                        root_list[key] = !root_list[key];
-                        localStorage.setItem("character_root", "Kitamura");
+            if (characterName == "キタムラ") { // 喜多村さんルート
+                for (let key in rootList) {
+                    if (key !== "kitamuraRootFlg") {
+                        rootList[key] = !rootList[key];
+                        localStorage.setItem("characterRoot", "Kitamura");
                     }
                 }
-                text_list = ["今日から念願の初出勤！どんな人がいるのか楽しみだなあ"];
+                textList = ["今日から念願の初出勤！どんな人がいるのか楽しみだなあ"];
 
-            } else if (character_name == "フカヤ") { // 深谷さんルート
-                for (let key in root_list) {
-                    if (key !== "Hukaya_root_flg") {
-                        root_list[key] = !root_list[key];
-                        localStorage.setItem("character_root", "Hukaya");
+            } else if (characterName == "フカヤ") { // 深谷さんルート
+                for (let key in rootList) {
+                    if (key !== "hukayaRootFlg") {
+                        rootList[key] = !rootList[key];
+                        localStorage.setItem("characterRoot", "Hukaya");
                     }
                 }
-                document.getElementById("name_tag").style.display = "none";
-                narration_flg = true;
-                text_list = ["〜バンタン 2階〜"];
+                document.getElementById("nameTag").style.display = "none";
+                narrationFlg = true;
+                textList = ["〜バンタン 2階〜"];
 
-            } else if (character_name == "コマツ") { // 小松さんルート
-                for (let key in root_list) {
-                    if (key !== "Komatsu_root_flg") {
-                        root_list[key] = !root_list[key];
-                        localStorage.setItem("character_root", "Komatsu");
+            } else if (characterName == "コマツ") { // 小松さんルート
+                for (let key in rootList) {
+                    if (key !== "komatsuRootFlg") {
+                        rootList[key] = !rootList[key];
+                        localStorage.setItem("characterRoot", "Komatsu");
                     }
                 }
-                text_list = ["おはようございます！初めまして！"];
+                textList = ["おはようございます！初めまして！"];
 
-            } else if (character_name == "ハシヅメ") { // 橋爪さんルート
-                for (let key in root_list) {
-                    if (key !== "Hashidume_root_flg") {
-                        root_list[key] = !root_list[key];
-                        localStorage.setItem("character_root", "Hashidume");
+            } else if (characterName == "ハシヅメ") { // 橋爪さんルート
+                for (let key in rootList) {
+                    if (key !== "hashidumeRootFlg") {
+                        rootList[key] = !rootList[key];
+                        localStorage.setItem("characterRoot", "Hashidume");
                     }
                 }
-                text_list = ["バンタンの職員として今日は初めての出勤日！遅刻しないように早く行かなきゃ…"];
+                textList = ["バンタンの職員として今日は初めての出勤日！遅刻しないように早く行かなきゃ…"];
 
-            } else if (character_name == "カツラ") { // 桂さんルート
-                for (let key in root_list) {
-                    if (key !== "Katura_root_flg") {
-                        root_list[key] = !root_list[key];
-                        localStorage.setItem("character_root", "Katura");
+            } else if (characterName == "カツラ") { // 桂さんルート
+                for (let key in rootList) {
+                    if (key !== "katuraRootFlg") {
+                        rootList[key] = !rootList[key];
+                        localStorage.setItem("characterRoot", "Katura");
                     }
                 }
-                name_tag_box.style.display = "none";
-                text_list = ["〜バンタン 2階〜"];
+                nextTagBox.style.display = "none";
+                textList = ["〜バンタン 2階〜"];
             }
 
-            first_next_button_animation = false;
-            name_tag_flg = true;
+            firstNextButtonAnimation = false;
+            nameTagFlg = true;
             
             setTimeout(() => {
-                show_text(text_division(text_list));
+                showText(textDivision(textList));
             }, 750);
             setTimeout(() => {
                 loading.style.display = "none";
             }, 3000);
-            next_text_num += 1; // テキストのリスト番号を一つ進める
-            console.log(`*最初のセリフ (現在のテキスト番号 : ${next_text_num})`); // 現在のテキスト番号 (デバッグ用)
+            nextTextNum += 1; // テキストのリスト番号を一つ進める
+            console.log(`*最初のセリフ (現在のテキスト番号 : ${nextTextNum})`); // 現在のテキスト番号 (デバッグ用)
         }, 1000);
     }
 }
 
 // title.htmlのみ有効
 if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/title.html") {
-    window.onload = function() {
+    window.onload = () => {
         // ローカルストーレジから各要素を削除
-        localStorage.removeItem("player_name", "favourable_impression", "character_name", "gender");
+        localStorage.removeItem("playerName", "favourableImpression", "characterName", "gender");
 
         const loading = document.getElementById("loading");
         loading.className = "first_loading";
@@ -177,91 +173,91 @@ if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/
     }
 
     // プレイヤーの名前を取得
-    document.getElementById("player_name_input").addEventListener("keydown", function(event) { // Enterキーが入力されたら変数にプレイヤー名を格納
+    document.getElementById("playerName_input").addEventListener("keydown", (event) => { // Enterキーが入力されたら変数にプレイヤー名を格納
         if (event.key == "Enter") {
             event.preventDefault(); // フォームの送信を防ぐ
 
-            let player_name = document.getElementById("player_name_input").value;
-            localStorage.setItem("player_name", player_name); // プレイヤー名をローカルストレージに保存(ページが遷移される際に変数が初期化されるため)
+            let playerName = document.getElementById("playerName_input").value;
+            localStorage.setItem("playerName", playerName); // プレイヤー名をローカルストレージに保存(ページが遷移される際に変数が初期化されるため)
 
-            document.getElementById("player_name_text").textContent =`あなたの名前は、${player_name}です。(現在の文字数 : ${player_name.length}文字)`;
+            document.getElementById("playerName_text").textContent =`あなたの名前は、${playerName}です。(現在の文字数 : ${playerName.length}文字)`;
         }
     });
 
-    document.addEventListener("keydown", function(event) {
-        if (event.key == "Enter" && !game_start_flg) {
-            Enter_hidden();
-            game_start_flg = true;
+    document.addEventListener("keydown", (event) => {
+        if (event.key == "Enter" && !gameStartFlg) {
+            enterHidden();
+            gameStartFlg = true;
         }
     });
 }
 
 // ending.htmlのみ有効
 if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/ending.html") {
-    window.onload = function() {
+    window.onload = () => {
         const loading = document.getElementById("loading");
-        const favourable_impression = localStorage.getItem("favourable_impression");
-        const character_root = localStorage.getItem("character_root");
-        const ending_character_img = document.getElementById("ending_character_img");
+        const favourableImpression = localStorage.getItem("favourableImpression");
+        const characterRoot = localStorage.getItem("characterRoot");
+        const endingCharacterImage = document.getElementById("endingCharacterImage");
 
-        let ending_title = document.getElementById("ending_h1");
-        let ending_text1 = document.getElementById("ending_text1");
-        let ending_text2 = document.getElementById("ending_text2");
-        let ending_text3 = document.getElementById("ending_text3");
+        let endingTitle = document.getElementById("ending_h1");
+        let endingText1 = document.getElementById("endingText1");
+        let endingText2 = document.getElementById("endingText2");
+        let endingText3 = document.getElementById("endingText3");
 
         loading.className = "first_loading";        
-        if (favourable_impression > 60) {
-            ending_title.textContent = "攻略成功";
-            ending_text1.textContent = "〜大変よくできました〜"
-            ending_text2.textContent = `好感度 { ${favourable_impression} }`;
-            ending_text3.textContent = "これであなたも立派なバンタンスタッフです！";
+        if (favourableImpression > 60) {
+            endingTitle.textContent = "攻略成功";
+            endingText1.textContent = "〜大変よくできました〜"
+            endingText2.textContent = `好感度 { ${favourableImpression} }`;
+            endingText3.textContent = "これであなたも立派なバンタンスタッフです！";
 
-            if (character_root == "Kitamura") {
-                ending_character_img.src = "../img/character/Kitamura/Kitamura_3.png";
-            } else if (character_root == "Hukaya") {
-                ending_character_img.src = "../img/character/Hukaya/Hukaya_3.png";
-            } else if (character_root == "Komatsu") {
-                ending_character_img.src = "../img/character/Komatsu/Komatsu_3.png";
-            } else if (character_root == "Hashidume") {
-                ending_character_img.src = "../img/character/Hashidume/Hashidume_3.png";
-            } else if (character_root == "Katura") {
-                ending_character_img.src = "../img/character/Katura/Katura_6.png";
+            if (characterRoot == "Kitamura") {
+                endingCharacterImage.src = "../img/character/Kitamura/Kitamura_3.png";
+            } else if (characterRoot == "Hukaya") {
+                endingCharacterImage.src = "../img/character/Hukaya/Hukaya_3.png";
+            } else if (characterRoot == "Komatsu") {
+                endingCharacterImage.src = "../img/character/Komatsu/Komatsu_3.png";
+            } else if (characterRoot == "Hashidume") {
+                endingCharacterImage.src = "../img/character/Hashidume/Hashidume_3.png";
+            } else if (characterRoot == "Katura") {
+                endingCharacterImage.src = "../img/character/Katura/Katura_6.png";
             }
             
-        } else if (favourable_impression > 40) {
-            ending_title.textContent = "攻略成功";
-            ending_text1.textContent = "〜よくできました〜"
-            ending_text2.textContent = `好感度 { ${favourable_impression} }`;
-            ending_text3.textContent = "より良い結果を目指してもう一度チャレンジしてみましょう！";
+        } else if (favourableImpression > 40) {
+            endingTitle.textContent = "攻略成功";
+            endingText1.textContent = "〜よくできました〜"
+            endingText2.textContent = `好感度 { ${favourableImpression} }`;
+            endingText3.textContent = "より良い結果を目指してもう一度チャレンジしてみましょう！";
 
-            if (character_root == "Kitamura") {
-                ending_character_img.src = "../img/character/Kitamura/Kitamura_4.png";
-            } else if (character_root == "Hukaya") {
-                ending_character_img.src = "../img/character/Hukaya/Hukaya_2.png";
-            } else if (character_root == "Komatsu") {
-                ending_character_img.src = "../img/character/Komatsu/Komatsu_2.png";
-            } else if (character_root == "Hashidume") {
-                ending_character_img.src = "../img/character/Hashidume/Hashidume_2.png";
-            } else if (character_root == "Katura") {
-                ending_character_img.src = "../img/character/Katura/Katura_2.png";
+            if (characterRoot == "Kitamura") {
+                endingCharacterImage.src = "../img/character/Kitamura/Kitamura_4.png";
+            } else if (characterRoot == "Hukaya") {
+                endingCharacterImage.src = "../img/character/Hukaya/Hukaya_2.png";
+            } else if (characterRoot == "Komatsu") {
+                endingCharacterImage.src = "../img/character/Komatsu/Komatsu_2.png";
+            } else if (characterRoot == "Hashidume") {
+                endingCharacterImage.src = "../img/character/Hashidume/Hashidume_2.png";
+            } else if (characterRoot == "Katura") {
+                endingCharacterImage.src = "../img/character/Katura/Katura_2.png";
             }
 
-        } else if (favourable_impression <= 40) {
-            ending_title.textContent = "攻略失敗";
-            ending_text1.textContent = "〜がんばりましょう〜";
-            ending_text2.textContent = `好感度 { ${favourable_impression} }`;
-            ending_text3.textContent = "次はもっと良い結果になると良いですね！";
+        } else if (favourableImpression <= 40) {
+            endingTitle.textContent = "攻略失敗";
+            endingText1.textContent = "〜がんばりましょう〜";
+            endingText2.textContent = `好感度 { ${favourableImpression} }`;
+            endingText3.textContent = "次はもっと良い結果になると良いですね！";
 
-            if (character_root == "Kitamura") {
-                ending_character_img.src = "../img/character/Kitamura/Kitamura_2.png";
-            } else if (character_root == "Hukaya") {
-                ending_character_img.src = "../img/character/Hukaya/Hukaya_4.png";
-            } else if (character_root == "Komatsu") {
-                ending_character_img.src = "../img/character/Komatsu/Komatsu_5.png";
-            } else if (character_root == "Hashidume") {
-                ending_character_img.src = "../img/character/Hashidume/Hashidume_4.png";
-            } else if (character_root == "Katura") {
-                ending_character_img.src = "../img/character/Katura/Katura_5.png";
+            if (characterRoot == "Kitamura") {
+                endingCharacterImage.src = "../img/character/Kitamura/Kitamura_2.png";
+            } else if (characterRoot == "Hukaya") {
+                endingCharacterImage.src = "../img/character/Hukaya/Hukaya_4.png";
+            } else if (characterRoot == "Komatsu") {
+                endingCharacterImage.src = "../img/character/Komatsu/Komatsu_5.png";
+            } else if (characterRoot == "Hashidume") {
+                endingCharacterImage.src = "../img/character/Hashidume/Hashidume_4.png";
+            } else if (characterRoot == "Katura") {
+                endingCharacterImage.src = "../img/character/Katura/Katura_5.png";
             }
         }
 
@@ -276,19 +272,19 @@ if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/
         }, 1000);
     }
 
-    document.getElementById("option_box1").addEventListener("click", function(event) {
-        game_start_sound.play();
+    document.getElementById("optionBox1").addEventListener("click", (event) => {
+        gameStartSound.play();
         event.preventDefault(); // ページ遷移を一時停止
         
         const url = this.parentElement.href; // ページのURLを取得
         const loading = document.getElementById("loading");
         loading.style.display = "block";
     
-        loading_display().then(() => {
+        loadingDisplay().then(() => {
             window.location = url; // resolveが返されたらURLを変更してページを遷移
         });
     
-        function loading_display() {
+        function loadingDisplay() {
             return new Promise(async (resolve) => {
                 setTimeout(() => {
                     loading.style.display = "block";
@@ -306,19 +302,19 @@ if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/
         }
     });
     
-    document.getElementById("option_box2").addEventListener("click", function(event) {
-        game_start_sound.play();
+    document.getElementById("optionBox2").addEventListener("click", function(event) {
+        gameStartSound.play();
         event.preventDefault(); // ページ遷移を一時停止
 
         const url = this.parentElement.href; // ページのURLを取得
         const loading = document.getElementById("loading");
         loading.style.display = "block";
     
-        loading_display().then(() => {
+        loadingDisplay().then(() => {
             window.location = url; // resolveが返されたらURLを変更してページを遷移
         });
     
-        function loading_display() {
+        function loadingDisplay() {
             return new Promise(async (resolve) => {
                 setTimeout(() => {
                     loading.style.display = "block";
@@ -338,21 +334,21 @@ if (url == "file:///Users/User/Documents/vantan%202024/simulation_game/template/
 
     document.addEventListener("keydown", function(event) {
         if (event.key == "1") {
-            ending_option(event.key);
+            endingOption(event.key);
         } else if (event.key == "2") {
-            ending_option(event.key);
+            endingOption(event.key);
         }
     })
 }
 
 // エンディングの選択肢
-function ending_option(num) {
-    game_start_sound.play();
-    let option_box1 = document.getElementById("option_box1");
-    let option_box2 = document.getElementById("option_box2");
+function endingOption(num) {
+    gameStartSound.play();
+    let optionBox1 = document.getElementById("optionBox1");
+    let optionBox2 = document.getElementById("optionBox2");
 
     if (num == 1) {
-        option_box1.className = "option_box_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
+        optionBox1.className = "optionBox_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
 
         const url = "title.html"; // ページのURLを取得
         const loading = document.getElementById("loading");
@@ -360,11 +356,11 @@ function ending_option(num) {
         loading.style.display = "block";
         loading.style.backgroundColor = "#fff";
         
-        loading_display().then(() => {
+        loadingDisplay().then(() => {
             window.location = url; // resolveが返されたらURLを変更してページを遷移
         });
         
-        function loading_display() {
+        function loadingDisplay() {
             return new Promise(async (resolve) => {
                 setTimeout(() => {
                     loading.style.display = "block";
@@ -381,7 +377,7 @@ function ending_option(num) {
         }
 
     } else if (num == 2) {
-        option_box2.className = "option_box_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
+        optionBox2.className = "optionBox_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
 
         const url = "end_roll.html"; // ページのURLを取得
         const loading = document.getElementById("loading");
@@ -389,11 +385,11 @@ function ending_option(num) {
         loading.style.display = "block";
         loading.style.backgroundColor = "#111";
         
-        loading_display().then(() => {
+        loadingDisplay().then(() => {
             window.location = url; // resolveが返されたらURLを変更してページを遷移
         });
         
-        function loading_display() {
+        function loadingDisplay() {
             return new Promise(async (resolve) => {
                 setTimeout(() => {
                     loading.style.display = "block";
@@ -416,42 +412,42 @@ function ending_option(num) {
     }, 750);
 }
 
-function Enter_hidden() {
-    game_start_sound.play();
+function enterHidden() {
+    gameStartSound.play();
 
     document.getElementById("Enter_hidden").style.display = "none";
-    document.getElementById("player_name_input").style.display = "block";
+    document.getElementById("playerName_input").style.display = "block";
     document.getElementById("name_button").style.display = "block";
 }
 
-function name_submit() {
-    const name_input = document.getElementById("player_name_input").value;
+function nameSubmit() {
+    const nameInput = document.getElementById("playerName_input").value;
 
-    if (name_input == "") {
+    if (nameInput == "") {
         alert("名無しさんはプレイできません！");
     } else {
-        confirm(`あなたの名前は「${name_input}」です。よろしいですか？`);
-        localStorage.setItem("player_name", name_input); // プレイヤー名をローカルストレージに保存(ページが遷移される際に変数が初期化されるため)
+        confirm(`あなたの名前は「${nameInput}」です。よろしいですか？`);
+        localStorage.setItem("playerName", nameInput); // プレイヤー名をローカルストレージに保存(ページが遷移される際に変数が初期化されるため)
 
-        const gender_option = document.getElementById("gender_option_box");
+        const gender_option = document.getElementById("gender_optionBox");
 
         gender_option.style.display = "block";
     }
 }
 
 // キャラクターを選択
-function character_select(character_name) {
-    confirm(character_name + "ルートを開始します。よろしいですか？");
-    localStorage.setItem("character_name", character_name); // キャラクター名をローカルストレージに保存
+function characterSelect(characterName) {
+    confirm(characterName + "ルートを開始します。よろしいですか？");
+    localStorage.setItem("characterName", characterName); // キャラクター名をローカルストレージに保存
 
     const url = "index.html"; // ページのURLを取得
     const loading = document.getElementById("loading");
 
-    loading_display().then(() => {
+    loadingDisplay().then(() => {
         window.location = url; // resolveが返されたらURLを変更してページを遷移
     });
 
-    function loading_display() {
+    function loadingDisplay() {
         return new Promise(async (resolve) => {
             loading.style.zIndex = 50;
             loading.style.opacity = 1;
@@ -463,7 +459,7 @@ function character_select(character_name) {
     }
 }
 
-function gender_select(num) {
+function genderSelect(num) {
     if (num == 1) {
         confirm("男の子でプレイします。よろしいですか？");
         localStorage.setItem("gender", "僕")
@@ -472,3474 +468,3474 @@ function gender_select(num) {
         localStorage.setItem("gender", "私");
     }
 
-    document.getElementById("character_option_box").style.display = "flex";
-    document.getElementById("gender_option_box").style.display = "none";
+    document.getElementById("character_optionBox").style.display = "flex";
+    document.getElementById("gender_optionBox").style.display = "none";
     document.getElementById("first_title").style.display = "none";
     document.getElementById("title_body").style.background = "#fff";
 }
 
 // テキストを分割
-function text_division(passed_text_list) {
-    let next_text = passed_text_list[0];
-    document.getElementById("current_text").innerHTML = ""; // 現在のテキストを初期化
+function textDivision(passedTextList) {
+    let nextText = passedTextList[0];
+    document.getElementById("currentText").innerHTML = ""; // 現在のテキストを初期化
 
-    text_list = []; // リストをリセット
-    text_list = [...next_text]; // 新しいテキストを分割
+    textList = []; // リストをリセット
+    textList = [...nextText]; // 新しいテキストを分割
 
-    return text_list; // 分割したテキストを返す
+    return textList; // 分割したテキストを返す
 }
 
 // 次へボタンを押した時の処理
-async function next_text() {
-    let current_text = document.getElementById("current_text"); // 現在のテキストを取得
+async function nextText() {
+    let currentText = document.getElementById("currentText"); // 現在のテキストを取得
 
-    if (text_display_flg == true) {
-        let next_button = document.getElementById("next_button"); // 次へボタンを取得
-        let name_tag_box = document.getElementById("name_tag"); // ネームタグを取得
-        let text_list = [];
+    if (textDisplayFlg == true) {
+        let nextButton = document.getElementById("next_button"); // 次へボタンを取得
+        let nextTagBox = document.getElementById("nameTag"); // ネームタグを取得
+        let textList = [];
 
-        text_skip_flg = false;
-        text_display_flg = false;
-        first_next_button_animation = false; // 関数が実行されたらアニメーションのリピートを停止
+        textSkipFlg = false;
+        textDisplayFlg = false;
+        firstNextButtonAnimation = false; // 関数が実行されたらアニメーションのリピートを停止
 
-        next_text_sound.play(); // mp3ファイルを再生
-        next_text_num += 1; // テキストのリスト番号を一つ進める
+        nextTextSound.play(); // mp3ファイルを再生
+        nextTextNum += 1; // テキストのリスト番号を一つ進める
 
-        if (next_text_num == 2) {
+        if (nextTextNum == 2) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "none"; // ネームタグを非表示
-                narration_flg = true;
+                nextTagBox.style.display = "none"; // ネームタグを非表示
+                narrationFlg = true;
 
-                text_list = ["〜バンタン2階〜"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["〜バンタン2階〜"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                narration_flg = true;
+                nextTagBox.style.display = "block";
+                narrationFlg = true;
 
-                text_list = ["～バンタン2階～"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["～バンタン2階～"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_1.png";
-                character_img.style.padding = "0";
-                name_tag.textContent = character_name;
-                text_list = ["にょっす！！"];
+                characterImage.src = "../img/character/Komatsu/Komatsu_1.png";
+                characterImage.style.padding = "0";
+                nameTag.textContent = characterName;
+                textList = ["にょっす！！"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                character_img.style.padding = "0";
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                characterImage.style.padding = "0";
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["今日から一年間よろしくお願いします！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["今日から一年間よろしくお願いします！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["おはようございます！"];
-                next_text_show();
+                textList = ["おはようございます！"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 3) {
+        } else if (nextTextNum == 3) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
             
-                name_tag_box.style.display = "block"; // ネームタグを表示
+                nextTagBox.style.display = "block"; // ネームタグを表示
 
-                text_list = ["おはようございます！初めまして！"];
-                name_tag_flg = true
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはようございます！初めまして！"];
+                nameTagFlg = true
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTagFlg = true;
 
-                text_list = ["おはようございます！初めまして！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはようございます！初めまして！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["今日からよろしくお願いします！いきなりなんですけど、コマツさんの授業見学しても良いですか？"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["今日からよろしくお願いします！いきなりなんですけど、コマツさんの授業見学しても良いですか？"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["こちらこそ、よろしくお願いします"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["こちらこそ、よろしくお願いします"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
-                text_list = [`おはようございます〜。新任スタッフの${player_name}さん?`];
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
+                textList = [`おはようございます〜。新任スタッフの${playerName}さん?`];
 
-                next_text_show();
+                nextTextShow();
             }
             
-        } else if (next_text_num == 4) {
+        } else if (nextTextNum == 4) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                character_img.src = "../img/character/Kitamura/Kitamura_50%.png";
-                character_img.style.padding = "0";
+                nameTag.textContent = characterName;
+                characterImage.src = "../img/character/Kitamura/Kitamura_50%.png";
+                characterImage.style.padding = "0";
 
-                text_list = ["おはやざっす。初めまして、今日からっすか？"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはやざっす。初めまして、今日からっすか？"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                character_img.style.padding = "0";
+                nameTag.textContent = characterName;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                characterImage.style.padding = "0";
 
-                text_list = [`おはようございます！！君が今日からスタッフとして一緒に働く${player_name}さんかな？よろしく！！`]
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = [`おはようございます！！君が今日からスタッフとして一緒に働く${playerName}さんかな？よろしく！！`]
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["あー別に構わないですけど"];
+                nameTag.textContent = characterName;
+                textList = ["あー別に構わないですけど"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["早速ですが、504教室のフカヤ講師の授業に参加お願いします！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["早速ですが、504教室のフカヤ講師の授業に参加お願いします！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                nameless_flg = true;
+                nameTag.textContent = playerName;
+                namelessFlg = true;
 
-                text_list = [`はい！${player_name}です！`];
-                next_text_show();
+                textList = [`はい！${playerName}です！`];
+                nextTextShow();
             }
 
-        } else if(next_text_num == 5) {
+        } else if(nextTextNum == 5) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
-                name_tag.textContent = player_name;
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
+                nameTag.textContent = playerName;
 
-                text_list = ["はい！初めてなので授業見学させていただいてもよろしいでしょうか？"];
-                name_tag_flg = true
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["はい！初めてなので授業見学させていただいてもよろしいでしょうか？"];
+                nameTagFlg = true
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                text_list = ["あの、スタッフって何するか分からないので授業の見学をしたいのですが、よろしいでしょうか？"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                textList = ["あの、スタッフって何するか分からないので授業の見学をしたいのですが、よろしいでしょうか？"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜4階 402教室〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜4階 402教室〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
-                        loading_flg = false;
+                        loadingFlg = false;
                     }, 1500);
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["分かりました"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["分かりました"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["僕が今日ここを案内させていただく「カツラ」と申します"];
+                nameTag.textContent = characterName;
+                textList = ["僕が今日ここを案内させていただく「カツラ」と申します"];
 
-                next_text_show();
+                nextTextShow();
             }
             
-        } else if(next_text_num == 6) {
+        } else if(nextTextNum == 6) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["あぁ、全然いいっすよ！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["あぁ、全然いいっすよ！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["ん〜そうだね、多分緊張もしてるだろうからリラックスも兼ねて僕と一緒に見て回ろうか"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["ん〜そうだね、多分緊張もしてるだろうからリラックスも兼ねて僕と一緒に見て回ろうか"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_4.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Komatsu/Komatsu_4.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["これちゃんと写してね！これ今のうちにやっとかないとガチで次詰むからね！！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["これちゃんと写してね！これ今のうちにやっとかないとガチで次詰むからね！！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜5階 504教室〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜5階 504教室〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
-                        loading_flg = false;
+                        loadingFlg = false;
                     }, 1500);
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["今日はよろしくお願いします！"];
-                next_text_show();
+                textList = ["今日はよろしくお願いします！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 7) {
+        } else if (nextTextNum == 7) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
                 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜5階 503教室〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜5階 503教室〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
-                        loading_flg = false;
+                        loadingFlg = false;
                     }, 1500);
                 });
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                text_list = ["良いんですか！ありがとうございます！"];
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                textList = ["良いんですか！ありがとうございます！"];
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["この先生はこんな感じなんだ〜"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["この先生はこんな感じなんだ〜"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
-                name_tag_box.style.display = "block";
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
+                nextTagBox.style.display = "block";
 
-                text_list = ["ITパスポート試験対策講座の担当講師・フカヤです。よろしくお願いします！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ITパスポート試験対策講座の担当講師・フカヤです。よろしくお願いします！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["申し訳ないんですけど、実は急遽ガイダンスが入ってしまって。"];
+                nameTag.textContent = characterName;
+                textList = ["申し訳ないんですけど、実は急遽ガイダンスが入ってしまって。"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 8) {
+        } else if (nextTextNum == 8) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kitamura/Kitamura_4.png";
-                character_img.style.padding = "50px 0 0 0";
-                name_tag_box.style.display = "block";
+                characterImage.src = "../img/character/Kitamura/Kitamura_4.png";
+                characterImage.style.padding = "50px 0 0 0";
+                nextTagBox.style.display = "block";
 
-                text_list = ["うぇ！？マジッすか！？んなことあったんすか！マジそれやばくねぇー！？"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["うぇ！？マジッすか！？んなことあったんすか！マジそれやばくねぇー！？"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["それじゃあ行こっか"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["それじゃあ行こっか"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜授業後〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜授業後〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
-                        loading_flg = false;
+                        loadingFlg = false;
                     }, 1500);
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = [`今日から一年間お世話になります、${player_name}と言います。よろしくお願いします`];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = [`今日から一年間お世話になります、${playerName}と言います。よろしくお願いします`];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["せっかくなので見て行きますか？"];
-                next_text_show();
+                textList = ["せっかくなので見て行きますか？"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 9) {
+        } else if (nextTextNum == 9) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "生徒A";
-                nameless_flg = true;
+                nameTag.textContent = "生徒A";
+                namelessFlg = true;
                 
-                text_list = ["そうなんすよ！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["そうなんすよ！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["～4階 402教室～"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["～4階 402教室～"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
-                        loading_flg = false;
+                        loadingFlg = false;
                     }, 1500);
                 });
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["授業お疲れ様でした"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["授業お疲れ様でした"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["早速一つ質問なんですけど、ITパスポートってどういうものなんですか？"];
+                nameTagFlg = true;
+                textList = ["早速一つ質問なんですけど、ITパスポートってどういうものなんですか？"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["はい！ガイダンスの方見学させて頂きたいです！"];
-                next_text_show();
+                textList = ["はい！ガイダンスの方見学させて頂きたいです！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 10) {
+        } else if (nextTextNum == 10) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
-                name_tag.textContent = player_name;
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
+                nameTag.textContent = playerName;
 
-                text_list = ["この先生はこんな感じなのか〜"];
-                name_tag_flg = true
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["この先生はこんな感じなのか〜"];
+                nameTagFlg = true
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = "コマツ";
-                nameless_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = "コマツ";
+                namelessFlg = true;
 
-                text_list = ["この問題の答えは～…"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["この問題の答えは～…"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Komatsu/Komatsu_1.png";
+                nameTag.textContent = characterName;
                 
-                text_list = ["お疲れ様でした、どうでした僕の授業は？"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["お疲れ様でした、どうでした僕の授業は？"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["ITパスポートはですね、ITの基礎分野を詰め込んだ資格です。"];
+                nameTag.textContent = characterName;
+                textList = ["ITパスポートはですね、ITの基礎分野を詰め込んだ資格です。"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["了解です。では4階に向かいましょうか。"];
+                nameTag.textContent = characterName;
+                textList = ["了解です。では4階に向かいましょうか。"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 11) {
+        } else if (nextTextNum == 11) {
             
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜授業後〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜授業後〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "生徒達";
-                nameless_flg = true;
+                nameTag.textContent = "生徒達";
+                namelessFlg = true;
 
-                text_list = ["がやがや"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["がやがや"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["話が分かりやすくって面白かったです！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["話が分かりやすくって面白かったです！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = [`この授業では、資格を取得するための勉強方法や、実際の試験での進め方をサポートしていきます。`];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = [`この授業では、資格を取得するための勉強方法や、実際の試験での進め方をサポートしていきます。`];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜4階 403教室〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜4階 403教室〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 12) {
+        } else if (nextTextNum == 12) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
 
-                text_list = ["授業お疲れ様でした"];
-                name_tag_flg = true
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["授業お疲れ様でした"];
+                nameTagFlg = true
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["わぁ～すごい！本格的な授業ですね！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["わぁ～すごい！本格的な授業ですね！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["あ〜ならよかったです（照///）"];
+                nameTag.textContent = characterName;
+                textList = ["あ〜ならよかったです（照///）"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["なるほど〜"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["なるほど〜"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["着きました。ガイダンスは403教室で行いますので"];
-                next_text_show();
+                textList = ["着きました。ガイダンスは403教室で行いますので"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 13) {
+        } else if (nextTextNum == 13) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kitamura/Kitamura_50%.png";
-                character_img.style.padding = "0";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Kitamura/Kitamura_50%.png";
+                characterImage.style.padding = "0";
+                nameTag.textContent = characterName;
 
-                text_list = ["お疲れっす、どうでしたか僕の授業は？"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["お疲れっす、どうでしたか僕の授業は？"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["僕たちの仕事は授業スケジュールを組んだり、生徒たちのサポートをするんだよ"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["僕たちの仕事は授業スケジュールを組んだり、生徒たちのサポートをするんだよ"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そういえば三ヶ月後クリスマスですね！！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["そういえば三ヶ月後クリスマスですね！！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["〜授業後〜"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["〜授業後〜"];
+                loadingFlg = true;
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_3.png";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_3.png";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["あ、きたきた。カツラさん出席確認はしといたんで、後よろしくお願いします。"];
-                next_text_show();
+                textList = ["あ、きたきた。カツラさん出席確認はしといたんで、後よろしくお願いします。"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 14) {
+        } else if (nextTextNum == 14) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
-                name_tag.textContent = player_name;
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
+                nameTag.textContent = playerName;
 
-                text_list = ["話が分かりやすくって面白かったです！"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["話が分かりやすくって面白かったです！"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["生徒たちのサポート？"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["生徒たちのサポート？"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["あ〜もうそんな時期かあ"];
+                nameTag.textContent = characterName;
+                textList = ["あ〜もうそんな時期かあ"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["今日の授業はどうでしたか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["今日の授業はどうでしたか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_2.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_2.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["あれ、面白い事するって言ってませんでした?笑"];
-                next_text_show();
+                textList = ["あれ、面白い事するって言ってませんでした?笑"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 15) {
+        } else if (nextTextNum == 15) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["本当っすか！それなら良かったっす（照//）"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["本当っすか！それなら良かったっす（照//）"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["そうそう、まぁ元気付けたり、相談に乗ってあげないといけないからね。僕みたいに元気よく接するのもいいよ！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["そうそう、まぁ元気付けたり、相談に乗ってあげないといけないからね。僕みたいに元気よく接するのもいいよ！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["クリスマス楽しみですね！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["クリスマス楽しみですね！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["教科書に沿って問題の解き方を教えてくれて、とても分かりやすくて楽しい授業でした"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["教科書に沿って問題の解き方を教えてくれて、とても分かりやすくて楽しい授業でした"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["いやいや言ってませんよ笑"];
-                next_text_show();
+                textList = ["いやいや言ってませんよ笑"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 16) {
+        } else if (nextTextNum == 16) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
-                name_tag.textContent = player_name;
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
+                nameTag.textContent = playerName;
 
-                text_list = ["今日はありがとうございました"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["今日はありがとうございました"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["（橋爪さんって親切で元気があるなぁ）"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["（橋爪さんって親切で元気があるなぁ）"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["そうですね〜"];
+                nameTag.textContent = characterName;
+                textList = ["そうですね〜"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["そこまで言って頂いて…ありがとうございます"];
+                nameTag.textContent = characterName;
+                textList = ["そこまで言って頂いて…ありがとうございます"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "メンバー";
-                nameless_flg = true;
+                nameTag.textContent = "メンバー";
+                namelessFlg = true;
 
-                text_list = ["カツラさん来てからやるって言ってましたよ〜！"];
-                next_text_show();
+                textList = ["カツラさん来てからやるって言ってましたよ〜！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 17) {
+        } else if (nextTextNum == 17) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["またなんかあればいつでも言ってください！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["またなんかあればいつでも言ってください！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["～見学が終わり～"];
-                next_text_show();
+                textList = ["～見学が終わり～"];
+                nextTextShow();
 
                 loading();
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["～3ヶ月後～"];
-                next_text_show();
-                log_remove();
+                textList = ["～3ヶ月後～"];
+                nextTextShow();
+                logRemove();
 
                 loading();
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                text_list = ["また来週もお願いします"];
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                textList = ["また来週もお願いします"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["おいおいおい笑するって言ってないから笑"];
-                next_text_show();
+                textList = ["おいおいおい笑するって言ってないから笑"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 18) {
+        } else if (nextTextNum == 18) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
-                name_tag.textContent = player_name;
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
+                nameTag.textContent = playerName;
 
-                text_list = ["はい！"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["はい！"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["橋爪さん！今日はありがとうございました！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["橋爪さん！今日はありがとうございました！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_1.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Komatsu/Komatsu_1.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["おはようございます〜"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはようございます〜"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                log_remove();
-                loading_flg = true;
+                logRemove();
+                loadingFlg = true;
 
-                text_list = ["〜半年後〜"];
-                next_text_show();
+                textList = ["〜半年後〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["じゃあ前…よろしくお願いします^^"];
-                next_text_show();
+                textList = ["じゃあ前…よろしくお願いします^^"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 19) {
+        } else if (nextTextNum == 19) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                log_remove();
-                loading_flg = true;
+                logRemove();
+                loadingFlg = true;
 
-                text_list = ["〜3ヶ月後〜"];
-                next_text_show();
+                textList = ["〜3ヶ月後〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["いやいや良いんだよ、これからよろしくね！！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["いやいや良いんだよ、これからよろしくね！！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["おはようございます！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはようございます！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
-                name_tag_box.style.display = "block";
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
+                nextTagBox.style.display = "block";
 
-                text_list = ["今日もありがとうございました"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["今日もありがとうございました"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                loading_flg = true;
+                loadingFlg = true;
 
-                text_list = ["〜ガイダンスの終盤〜"];
-                next_text_show();
+                textList = ["〜ガイダンスの終盤〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
             
-        } else if (next_text_num == 20) {
+        } else if (nextTextNum == 20) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kitamura/Kitamura_50%.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Kitamura/Kitamura_50%.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["うっす、おはようございます！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["うっす、おはようございます！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["！！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["！！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["（出会って3ヶ月、最近気づいたらコマツさんのことばかり見てしまう、私どうしちゃったんだろう///）"];
+                nameTagFlg = true;
+                textList = ["（出会って3ヶ月、最近気づいたらコマツさんのことばかり見てしまう、私どうしちゃったんだろう///）"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["ありがとうございました！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ありがとうございました！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(凄いなぁ…カツラさんメンバーに寄り添いながらも、しっかりするところはしっかりしてる…)"];
-                next_text_show();
+                textList = ["(凄いなぁ…カツラさんメンバーに寄り添いながらも、しっかりするところはしっかりしてる…)"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 21) {
+        } else if (nextTextNum == 21) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
+                nameTag.textContent = playerName;
 
-                text_list = ["おはようございます！"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["おはようございます！"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["はいっ”！（声が裏返る）"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nameTagFlg = true;
+                textList = ["はいっ”！（声が裏返る）"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "…何かありました？";
+                let optionText = "…何かありました？";
                 let option1 = "はっ！すみません何でもありません！";
                 let option2 = "最近気づいたらコマツさんのことを見てしまっているんです//";
                 let option1_text = "(どうしたんだろう…？)";
                 let option2_text = "突然何言ってるの、シャキッとしてほら（照///）";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["あの、もしよろしければ今度一緒にお出かけしませんか？"];
+                nameTagFlg = true;
+                textList = ["あの、もしよろしければ今度一緒にお出かけしませんか？"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = [`(${first_person}も見習わなくちゃ！)`];
+                nameTagFlg = true;
+                textList = [`(${firstPerson}も見習わなくちゃ！)`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 22) {
+        } else if (nextTextNum == 22) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["（バンタンに来て3ヶ月…）"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["（バンタンに来て3ヶ月…）"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["まぁだ緊張してるの？笑"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["まぁだ緊張してるの？笑"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["良いですね。どこに行きますか？"];
+                nameTag.textContent = characterName;
+                textList = ["良いですね。どこに行きますか？"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
-                text_list = [`${player_name}さん、メンバーの皆にアドバイス的なことってあります？`];
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
+                textList = [`${playerName}さん、メンバーの皆にアドバイス的なことってあります？`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 23) {
+        } else if (nextTextNum == 23) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["（気付いたらキタムラさんのことばかり見てしまう…）"];
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["（気付いたらキタムラさんのことばかり見てしまう…）"];
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["（恥ずかしい…//）"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["（恥ずかしい…//）"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = [`そういえば${first_person}、クリスマスマーケット行ってみたいんですよね！`];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = [`そういえば${firstPerson}、クリスマスマーケット行ってみたいんですよね！`];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["この前友達に紹介された海鮮のお店があるんですが、よければ行きませんか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["この前友達に紹介された海鮮のお店があるんですが、よければ行きませんか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = [`あ、${first_person}ですか？`];
-                next_text_show();
+                textList = [`あ、${firstPerson}ですか？`];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 24) {
+        } else if (nextTextNum == 24) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["（私、どうしちゃったんだろう…//）"]
-                name_tag_flg = true;
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["（私、どうしちゃったんだろう…//）"]
+                nameTagFlg = true;
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["これからよろしくお願いします…//"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["これからよろしくお願いします…//"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "へ〜そんなのやってるんだ";
+                let optionText = "へ〜そんなのやってるんだ";
                 let option1 = "今日学校終わった後って何か予定ありますか？";
                 let option2 = "今日この後なんかある？";
                 let option1_text = "特にないですよ";
                 let option2_text = "特にないですよ";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["ぜひ行きましょう！"];
+                nameTag.textContent = characterName;
+                textList = ["ぜひ行きましょう！"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["それじゃあ…"];
+                nameTagFlg = true;
+                textList = ["それじゃあ…"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 25) {
+        } else if (nextTextNum == 25) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                let option_text = "どうしたんすか？何か考え事でも？";
+                let optionText = "どうしたんすか？何か考え事でも？";
                 let option1 = "はっ！すみません何でもありません！！";
                 let option2 = "最近気づいたらキタムラさんのことを見てしまっているんです//";
                 let option1_text = "（どうしたんだろう…？）";
                 let option2_text = "どうしたんすか突然！恥ずかしいじゃないっすか//";
 
-                delivery_text_list = [option1_text, option2_text];
+                deliveryTextList = [option1_text, option2_text];
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                loading_flg = true;
+                nameTag.textContent = characterName;
+                loadingFlg = true;
 
-                text_list = ["おはようございまーす！"];
-                next_text_show();
+                textList = ["おはようございまーす！"];
+                nextTextShow();
                 loading();
-                log_remove();
+                logRemove();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    character_img.src = "../img/character/Hashidume/Hashidume_2.png";
-                    character_img.style.padding = "100px 0 0 0";
-                    loading_flg = false;
+                    characterImage.src = "../img/character/Hashidume/Hashidume_2.png";
+                    characterImage.style.padding = "100px 0 0 0";
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
                 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                loading_flg = true;
+                loadingFlg = true;
 
-                text_list = ["〜店内にて〜"];
-                next_text_show();
+                textList = ["〜店内にて〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_flg = true;
-                text_list = [`メンバーの皆さん！初めまして、ここの新任スタッフになった${player_name}です！`];
+                characterImage.src = "#";
+                nameTagFlg = true;
+                textList = [`メンバーの皆さん！初めまして、ここの新任スタッフになった${playerName}です！`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 26) {
+        } else if (nextTextNum == 26) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["お、おはようございます！！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["お、おはようございます！！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = ["本当ですか！良かったらどこか一緒に行きませんか？"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["本当ですか！良かったらどこか一緒に行きませんか？"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["深谷さんは何食べますか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["深谷さんは何食べますか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["あなた達はいずれ、選択を問われる時が来ると思います"];
+                nameTagFlg = true;
+                textList = ["あなた達はいずれ、選択を問われる時が来ると思います"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 27) {
+        } else if (nextTextNum == 27) {
 
-            if (root_list.Kitamura_root_flg) {
-                let option_text = "テキスト";
+            if (rootList.kitamuraRootFlg) {
+                let optionText = "テキスト";
                 let option1 = "今日学校終わった後って何か予定ありますか？";
                 let option2 = "今日この後なんかある？";
                 let option1_text = "特にないっすよ";
                 let option2_text = "特にないっすよ";
 
-                delivery_text_list = [option1_text, option2_text];
+                deliveryTextList = [option1_text, option2_text];
 
-                option_flg = true;
-                direct_option_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                optionFlg = true;
+                directOptionFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["（や、やばい…！）"];
-                name_tag_flg = true;
+                textList = ["（や、やばい…！）"];
+                nameTagFlg = true;
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["まぁ…良いですけど"];
+                nameTag.textContent = characterName;
+                textList = ["まぁ…良いですけど"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
-                option_flg = true;
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = `マグロ丼にしようかな。${player_name}さんはどうしますか？`;
+                let optionText = `マグロ丼にしようかな。${playerName}さんはどうしますか？`;
                 let option1 = "ネギトロ丼にします";
                 let option2 = "タコの踊り食いで";
                 let option1_text = "ネギトロ丼も良いな〜シェアしましょうよ！";
                 let option2_text = "踊り食い…ですか";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = [`その選択で後悔しそうなことを選ぶなら、大きい事を選択して挑戦した方が良いと${first_person}は思います`];
+                nameTagFlg = true;
+                textList = [`その選択で後悔しそうなことを選ぶなら、大きい事を選択して挑戦した方が良いと${firstPerson}は思います`];
 
-                next_text_show();
+                nextTextShow();
             }
             
-        } else if (next_text_num == 28) {
+        } else if (nextTextNum == 28) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = [`${player_name}さん、どうしたんですか？`];
+                nameTag.textContent = characterName;
+                textList = [`${playerName}さん、どうしたんですか？`];
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                option_flg = true;
-                loading_flg = true;
+                optionFlg = true;
+                loadingFlg = true;
 
                 loading();
-                log_remove();
+                logRemove();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
 
-                    let option_text = "で、どこ行くんですか？";
+                    let optionText = "で、どこ行くんですか？";
                     let option1 = "それなら…クリスマスマーケットに行きませんか？";
                     let option2 = "じゃあ…ジャスコに行きませんか？";
                     let option1_text = "あぁ朝言ってたやつですか、良いですよ";
                     let option2_text = "ジャスコ伊丹店いきますか";
 
-                    delivery_text_list = [option1_text, option2_text];
-                    option_display(option_text, option1, option2);
+                    deliveryTextList = [option1_text, option2_text];
+                    optionDisplay(optionText, option1, option2);
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["例えそれで〜〜……"];
+                nameTagFlg = true;
+                textList = ["例えそれで〜〜……"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 29) {
+        } else if (nextTextNum == 29) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                text_list = ["本当ですか！良かったらどこか一緒に行きませんか？"];
-                name_tag_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                nameTag.textContent = playerName;
+                textList = ["本当ですか！良かったらどこか一緒に行きませんか？"];
+                nameTagFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["ひゃぁぇ！！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["ひゃぁぇ！！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
 
-                text_list = ["〜食事の後〜"];
-                narration_flg = true;
-                loading_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                textList = ["〜食事の後〜"];
+                narrationFlg = true;
+                loadingFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
                 loading();
-                next_text_show();
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                loading_flg = true;
+                loadingFlg = true;
 
-                text_list = ["〜話が終わり〜"];
-                next_text_show();
+                textList = ["〜話が終わり〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 30) {
+        } else if (nextTextNum == 30) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["全然いいっすよ！行きましょうか！"];
-                next_text_show(); 
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["全然いいっすよ！行きましょうか！"];
+                nextTextShow(); 
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["！？"];
+                nameTag.textContent = characterName;
+                textList = ["！？"];
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                loading_flg = true;
+                characterImage.src = "#";
+                loadingFlg = true;
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = ["やっぱクリスマスだから色々イルミネーションとか装飾されてて綺麗でしたね！"];
-                next_text_show();
+                textList = ["やっぱクリスマスだから色々イルミネーションとか装飾されてて綺麗でしたね！"];
+                nextTextShow();
 
                 loading();
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
                 
-                text_list = ["ご飯どうでしたか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ご飯どうでしたか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["ご清聴ありがとうございました"];
-                next_text_show();
+                textList = ["ご清聴ありがとうございました"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 31) {
+        } else if (nextTextNum == 31) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                let option_text = "それじゃ早速っすけど、どこ行きます？";
+                let optionText = "それじゃ早速っすけど、どこ行きます？";
                 let option1 = "実は気になってるレストランがあって、そことかどうですか？";
                 let option2 = "近くに二郎系ラーメンのお店があるんですけど、どうですか？";
                 let option1_text = "レストランですか！いいっすね！";
                 let option2_text = "二郎かあ〜（にんにくキツそうだな…大丈夫かな）";
 
-                delivery_text_list = [option1_text, option2_text];
+                deliveryTextList = [option1_text, option2_text];
 
-                name_tag.textContent = character_name;
-                option_flg = true;
-                loading_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
+                loadingFlg = true;
 
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["驚かしちゃいましたか！？ごめんなさい！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["驚かしちゃいましたか！？ごめんなさい！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_1.png";
-                name_tag.textContent = character_name;
-                text_list = ["ですね、でもあなたの方がPython3のコードのように綺麗だよ"];
+                characterImage.src = "../img/character/Komatsu/Komatsu_1.png";
+                nameTag.textContent = characterName;
+                textList = ["ですね、でもあなたの方がPython3のコードのように綺麗だよ"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
-                text_list = ["とても美味しかったですよ"];
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
+                textList = ["とても美味しかったですよ"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["ありがとうございました。とてもいい事を言ってくださいましたね"];
-                next_text_show();
+                textList = ["ありがとうございました。とてもいい事を言ってくださいましたね"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 32) {
+        } else if (nextTextNum == 32) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
                 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["い、いいい、いえっ！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                textList = ["い、いいい、いえっ！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["えっ///"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["えっ///"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["深谷さんのお口に合ってよかったです。また誘っても良いですか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["深谷さんのお口に合ってよかったです。また誘っても良いですか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["チャレンジをする事ってやっぱり重要なんですね"];
-                next_text_show();
+                textList = ["チャレンジをする事ってやっぱり重要なんですね"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 33) {
+        } else if (nextTextNum == 33) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
                 loading();
-                log_remove();
+                logRemove();
 
-                loading_flg = true;
-                text_list = ["〜食事の後〜"];
-                next_text_show();
+                loadingFlg = true;
+                textList = ["〜食事の後〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = [`あ、あの、${first_person}実は、ハシヅメさんのこと見るとドキドキしちゃうんです…！`];
-                name_tag_flg = true;
+                textList = [`あ、あの、${firstPerson}実は、ハシヅメさんのこと見るとドキドキしちゃうんです…！`];
+                nameTagFlg = true;
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["つっ、次はあそこにある大きなクリスマスツリーのところ行きませんか？"];
+                nameTagFlg = true;
+                textList = ["つっ、次はあそこにある大きなクリスマスツリーのところ行きませんか？"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["良いですよ。また行きましょう！"];
+                nameTag.textContent = characterName;
+                textList = ["良いですよ。また行きましょう！"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
-                text_list = ["ｷ-ﾝｺ-ﾝｶ-ﾝｺ-ﾝ"];
-                next_text_show();
+                textList = ["ｷ-ﾝｺ-ﾝｶ-ﾝｺ-ﾝ"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 34) {
+        } else if (nextTextNum == 34) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_box.style.display = "block";
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nextTagBox.style.display = "block";
+                nameTagFlg = true;
 
-                text_list = ["ご飯美味しかったですか？"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["ご飯美味しかったですか？"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = [`${first_person}、ハシヅメさんのこと好きなのかもしれません…！`];
-                name_tag_flg = true;
+                textList = [`${firstPerson}、ハシヅメさんのこと好きなのかもしれません…！`];
+                nameTagFlg = true;
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["あぁ良いですよ"];
+                nameTag.textContent = characterName;
+                textList = ["あぁ良いですよ"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
 
-                text_list = ["〜授業前〜"];
-                narration_flg = true;
-                loading_flg = true;
+                textList = ["〜授業前〜"];
+                narrationFlg = true;
+                loadingFlg = true;
 
-                log_remove();
+                logRemove();
                 loading();
-                next_text_show();
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                text_list = ["これでガイダンスを終わります。ありがとうございました。"];
+                nextTagBox.style.display = "block";
+                textList = ["これでガイダンスを終わります。ありがとうございました。"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 35) {
+        } else if (nextTextNum == 35) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = delivery_img;
-                name_tag.textContent = character_name;
-                text_list = ["はい！美味しかったです！次はどうしますか？"];
+                characterImage.src = deliveryImage;
+                nameTag.textContent = characterName;
+                textList = ["はい！美味しかったです！次はどうしますか？"];
 
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["えぇっ？そ、そうなんですか…？"];
+                nameTag.textContent = characterName;
+                textList = ["えぇっ？そ、そうなんですか…？"];
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                loading_flg = true;
+                characterImage.src = "#";
+                loadingFlg = true;
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                text_list = ["ツリーとってもキラキラしてて綺麗ですね///（今…伝えなきゃ！）"];
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                textList = ["ツリーとってもキラキラしてて綺麗ですね///（今…伝えなきゃ！）"];
 
                 loading();
-                next_text_show();
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["この前はありがとうございました！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["この前はありがとうございました！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag.textContent = "メンバーA";
-                nameless_flg = true;
+                characterImage.src = "#";
+                nameTag.textContent = "メンバーA";
+                namelessFlg = true;
 
                 loading();
-                loading_flg = true;
+                loadingFlg = true;
 
-                text_list = [`${player_name}さん！あの考え方素晴らしいと思います！`];
-                next_text_show();
+                textList = [`${playerName}さん！あの考え方素晴らしいと思います！`];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 36) {
+        } else if (nextTextNum == 36) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["次は景色のいい展望台にでも行きませんか？"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["次は景色のいい展望台にでも行きませんか？"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                optionFlg = true;
 
-                let option_text = "は、はい…";
+                let optionText = "は、はい…";
                 let option1 = "良ければデートに行きませんか！";
                 let option2 = "……///（恥ずかしくて何も言えない…）";
                 let option1_text = "良いですよ！";
                 let option2_text = "ん？どうしたんですか？……もしかしてデートへのお誘いですか？"
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Komatsu/Komatsu_1.png";
-                name_tag.textContent = character_name;
-                text_list = ["綺麗ですね〜"];
+                characterImage.src = "../img/character/Komatsu/Komatsu_1.png";
+                nameTag.textContent = characterName;
+                textList = ["綺麗ですね〜"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["こちらこそ、ありがとうございました"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["こちらこそ、ありがとうございました"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["いえいえ、そんなそんな"];
-                next_text_show();
+                textList = ["いえいえ、そんなそんな"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 37) {
+        } else if (nextTextNum == 37) {
             
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["展望台良いっすね！行きましょう！"];
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["展望台良いっすね！行きましょう！"];
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["あの…実は今日、伝えたいことがあるんです！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["あの…実は今日、伝えたいことがあるんです！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["今夜って、空いてたりしますか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["今夜って、空いてたりしますか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["でも結構いい事だと思いますよ"];
-                next_text_show();
+                textList = ["でも結構いい事だと思いますよ"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 38) {
+        } else if (nextTextNum == 38) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
                 loading();
 
-                character_img.src = "#";
-                name_tag.textContent = player_name;
-                name_tag_box.style.display = "none";
-                name_tag_flg = true;
+                characterImage.src = "#";
+                nameTag.textContent = playerName;
+                nextTagBox.style.display = "none";
+                nameTagFlg = true;
 
-                text_list = ["いい眺めですね…//（今…伝えなきゃ！）"];
-                loading_flg = true;
-                next_text_show();
+                textList = ["いい眺めですね…//（今…伝えなきゃ！）"];
+                loadingFlg = true;
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
-                    name_tag_box.style.display = "block";
+                    loadingFlg = false;
+                    nextTagBox.style.display = "block";
                 });
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                if (option1_flg) {
-                    name_tag.textContent = player_name;
-                    name_tag_flg = true;
+                if (option1Flg) {
+                    nameTag.textContent = playerName;
+                    nameTagFlg = true;
 
-                    text_list = ["！！！"];
-                    next_text_show();
-                } else if (option2_flg) {
-                    name_tag.textContent = player_name;
-                    text_list = ["は、はい///"];
-                    name_tag_flg = true;
+                    textList = ["！！！"];
+                    nextTextShow();
+                } else if (option2Flg) {
+                    nameTag.textContent = playerName;
+                    textList = ["は、はい///"];
+                    nameTagFlg = true;
 
-                    next_text_show();
+                    nextTextShow();
                 }
-            } else if (root_list.Komatsu_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.komatsuRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "なんですか？";
+                let optionText = "なんですか？";
                 let option1 = "実はコマツさんのことが好きです！付き合ってください！";
                 let option2 = "私とパソコンとWi-Fiのような共存関係になってください///";
                 let option1_text = "えっ僕ですか？まぁ僕でよければ…";
                 let option2_text = "僕も君との恋愛コードを描いていきたい！だからぜひ僕のコードの一部になってくれ！！";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["空いてますよ"];
+                nameTag.textContent = characterName;
+                textList = ["空いてますよ"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["後悔しそうなら大きい事ですね、覚えておきます"];
-                next_text_show();
+                textList = ["後悔しそうなら大きい事ですね、覚えておきます"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 39) {
+        } else if (nextTextNum == 39) {
             
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["ホントに綺麗っすね…！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                nameTag.textContent = characterName;
+                textList = ["ホントに綺麗っすね…！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                if (option1_flg) {
-                    text_list = ["やった！"];
-                    name_tag_flg = true;
-                    option1_flg = false
-                } else if (option2_flg) {
-                    name_tag.textContent = character_name;
-                    text_list = ["もちろん大丈夫ですよ！"];
-                    option2_flg = false;
+                if (option1Flg) {
+                    textList = ["やった！"];
+                    nameTagFlg = true;
+                    option1Flg = false
+                } else if (option2Flg) {
+                    nameTag.textContent = characterName;
+                    textList = ["もちろん大丈夫ですよ！"];
+                    option2Flg = false;
                 }
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["よければ、ご飯行きませんか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["よければ、ご飯行きませんか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["いやっそんな！留意するような事ではありませんよ汗"];
-                next_text_show();
+                textList = ["いやっそんな！留意するような事ではありませんよ汗"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 40) {
+        } else if (nextTextNum == 40) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["あの…実は今日、伝えたいことがあるんです！"];
-                next_text_show();
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                textList = ["あの…実は今日、伝えたいことがあるんです！"];
+                nextTextShow();
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                text_list = ["で、では明日おやすみですので、お時間があれば！"];
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                textList = ["で、では明日おやすみですので、お時間があれば！"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["良いですね、行きましょうか"];
+                nameTag.textContent = characterName;
+                textList = ["良いですね、行きましょうか"];
 
-                next_text_show();
-            } else if (root_list.Komatsu_root_flg) {
-                ending_move();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.komatsuRootFlg) {
+                endingMove();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                un_direct_option_flg();
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                characterImage.src = "#";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                log_remove();
+                logRemove();
                 loading();
-                loading_flg = true;
+                loadingFlg = true;
 
-                text_list = [`(あれから${first_person}はVANTANの案内を受け、仕事内容も詳しく教えてもらった)`];
-                next_text_show();
+                textList = [`(あれから${firstPerson}はVANTANの案内を受け、仕事内容も詳しく教えてもらった)`];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 41) {
+        } else if (nextTextNum == 41) {
 
-            if (root_list.Kitamura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.kitamuraRootFlg) {
+                unDirectOptionFlg();
 
-                let option_text = "…なんでしょう？";
+                let optionText = "…なんでしょう？";
                 let option1 = "実はキタムラさんのことが好きなんです！付き合ってください！";
                 let option2 = "キタムラさんのことが好きなんだばって、わど付き合ってけね？";
                 let option1_text = "マジすか！僕でよければ喜んで！";
                 let option2_text = "Je suis heureux！";
 
-                delivery_text_list = [option1_text, option2_text];
-                character_img.src = delivery_img;
-                name_tag.textContent = character_name;
-                option_flg = true;
+                deliveryTextList = [option1_text, option2_text];
+                characterImage.src = deliveryImage;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                option_display(option_text, option1, option2);
-                end_flg = true;
-            } else if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+                optionDisplay(optionText, option1, option2);
+                endFlg = true;
+            } else if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["おっ、ちょうど明日空いてるんですね！是非行きましょう！"];
+                nameTag.textContent = characterName;
+                textList = ["おっ、ちょうど明日空いてるんですね！是非行きましょう！"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
 
-                loading_flg = true;
-                text_list = ["〜食事中〜"];
-                next_text_show();
+                loadingFlg = true;
+                textList = ["〜食事中〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = [`(そして数ヶ月経つ頃にはメンバーさんとも仲良くなれ、自ずと${first_person}は相談事を受けることが増えてきた)`];
+                nameTagFlg = true;
+                textList = [`(そして数ヶ月経つ頃にはメンバーさんとも仲良くなれ、自ずと${firstPerson}は相談事を受けることが増えてきた)`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 42) {
+        } else if (nextTextNum == 42) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                log_remove();
+                logRemove();
 
-                loading_flg = true;
-                text_list = ["〜次の日〜"];
-                next_text_show();
+                loadingFlg = true;
+                textList = ["〜次の日〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag_flg = true;
-                name_tag.textContent = player_name;
+                nextTagBox.style.display = "block";
+                nameTagFlg = true;
+                nameTag.textContent = playerName;
 
-                text_list = ["この後少しお時間ありますか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["この後少しお時間ありますか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "メンバーA";
-                nameless_flg = true;
+                nameTag.textContent = "メンバーA";
+                namelessFlg = true;
 
-                text_list = [`${player_name}さん。実は今進路に悩んでて…`];
-                next_text_show();
+                textList = [`${playerName}さん。実は今進路に悩んでて…`];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 43) {
+        } else if (nextTextNum == 43) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_2.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hashidume/Hashidume_2.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = ["あ！いたいた"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["あ！いたいた"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag.textContent = character_name;
-                option_flg = true;
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "ありますよ。どうかしました？";
+                let optionText = "ありますよ。どうかしました？";
                 let option1 = "ちょっと気晴らしにドライブでも行きませんか？";
                 let option2 = "ちょっと気晴らしに散歩でも行きませんか？";
                 let option1_text = "良いですよ";
                 let option2_text = "良いですよ";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Kitamura_root_flg) {
-                ending_move();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.kitamuraRootFlg) {
+                endingMove();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そうか〜、うーん、やりたいことをやればいいと思うよ"];
-                next_text_show();
+                textList = ["そうか〜、うーん、やりたいことをやればいいと思うよ"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 44) {
+        } else if (nextTextNum == 44) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["ハシヅメさん！こんにちは〜"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ハシヅメさん！こんにちは〜"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "メンバーA";
-                nameless_flg = true;
+                nameTag.textContent = "メンバーA";
+                namelessFlg = true;
 
-                text_list = [`やりたいこと…${player_name}さんみたいになりたいです！`];
-                next_text_show();
+                textList = [`やりたいこと…${playerName}さんみたいになりたいです！`];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 45) {
+        } else if (nextTextNum == 45) {
             
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["待たせちゃってごめんね"];
+                nameTag.textContent = characterName;
+                textList = ["待たせちゃってごめんね"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
 
                 loading();
-                log_remove();
+                logRemove();
 
-                loading_flg = true;
-                text_list = ["〜外に出て〜"];
-                next_text_show();
+                loadingFlg = true;
+                textList = ["〜外に出て〜"];
+                nextTextShow();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["本当？嬉しいなぁ"];
-                next_text_show();
+                textList = ["本当？嬉しいなぁ"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 46) {
+        } else if (nextTextNum == 46) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["気にしないでください！楽しみすぎて早く来ちゃっただけなので！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["気にしないでください！楽しみすぎて早く来ちゃっただけなので！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hukaya/Hukaya_1.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Hukaya/Hukaya_1.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                if (option1_flg) {
-                    text_list = ["たまにはドライブも良いですね〜"];
-                    option1_flg = false;
-                } else if (option2_flg) {
-                    text_list = ["たまには散歩も良いですね〜"];
-                    option2_flg = false;
+                if (option1Flg) {
+                    textList = ["たまにはドライブも良いですね〜"];
+                    option1Flg = false;
+                } else if (option2Flg) {
+                    textList = ["たまには散歩も良いですね〜"];
+                    option2Flg = false;
                 }
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "メンバーA";
-                nameless_flg = true;
+                nameTag.textContent = "メンバーA";
+                namelessFlg = true;
 
-                text_list = ["そんな、本当の事を言っただけですよ！"];
-                next_text_show();
+                textList = ["そんな、本当の事を言っただけですよ！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 47) {
+        } else if (nextTextNum == 47) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そんなに？笑"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["そんなに？笑"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そうですね！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["そうですね！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜4階〜"];
-                next_text_show();
+                textList = ["〜4階〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
             
-        } else if (next_text_num == 48) {
+        } else if (nextTextNum == 48) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["は、はい///"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["は、はい///"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["（言うなら今しか無い…！）"];
+                nameTagFlg = true;
+                textList = ["（言うなら今しか無い…！）"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["あ、カツラさんこんにちは"];
-                next_text_show();
+                textList = ["あ、カツラさんこんにちは"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 49) {
+        } else if (nextTextNum == 49) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["嬉しいな笑"];
+                nameTag.textContent = characterName;
+                textList = ["嬉しいな笑"];
 
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["あの…！"];
+                nameTagFlg = true;
+                textList = ["あの…！"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
-                text_list = [`${player_name}さんこんにちは〜`];
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
+                textList = [`${playerName}さんこんにちは〜`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 50) {
+        } else if (nextTextNum == 50) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["じゃ、じゃあ…どこに行きますか？"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["じゃ、じゃあ…どこに行きますか？"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "どうしました？";
+                let optionText = "どうしました？";
                 let option1 = "これからずっと一緒にご飯を食べる権利を私にくれませんか？";
                 let option2 = "実は深谷さんのことが好きなんです！私と付き合ってください！";
                 let option1_text = "私もあなたとの食事が一番美味しく感じるんです。ぜひ！";
                 let option2_text = "ありがとうございます。私でよければ！";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["メンバーのメンタルケアまでしてもらって…本当ありがとうございます"];
-                next_text_show();
+                textList = ["メンバーのメンタルケアまでしてもらって…本当ありがとうございます"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 51) {
+        } else if (nextTextNum == 51) {
 
-            if (root_list.Hashidume_root_flg) {
+            if (rootList.hashidumeRootFlg) {
                 
-                name_tag.textContent = character_name;
-                text_list = ["僕、見たい映画があるんですよね〜"];
+                nameTag.textContent = characterName;
+                textList = ["僕、見たい映画があるんですよね〜"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["いえいえ、楽しくやらせてもらっているので！"];
-                next_text_show();
+                textList = ["いえいえ、楽しくやらせてもらっているので！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 52) {
+        } else if (nextTextNum == 52) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["映画ですか！行きましょう！"];
-                next_text_show();
-            } else if (root_list.Hukaya_root_flg) {
-                un_direct_option_flg();
+                textList = ["映画ですか！行きましょう！"];
+                nextTextShow();
+            } else if (rootList.hukayaRootFlg) {
+                unDirectOptionFlg();
 
-                option1_flg = false;
-                option2_flg = false;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = ["一緒に美味しいものを沢山食べに行きましょう！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["一緒に美味しいものを沢山食べに行きましょう！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["ところで近いうちに親睦も兼ねてご飯でも行きませんか？"];
+                nameTag.textContent = characterName;
+                textList = ["ところで近いうちに親睦も兼ねてご飯でも行きませんか？"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 53) {
+        } else if (nextTextNum == 53) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜映画館にて〜"];
-                next_text_show();
+                textList = ["〜映画館にて〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Hukaya_root_flg) {
-                ending_move();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.hukayaRootFlg) {
+                endingMove();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["いいですね！私ココとココと〜……が空いてますね"];
-                next_text_show();
+                textList = ["いいですね！私ココとココと〜……が空いてますね"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 54) {
+        } else if (nextTextNum == 54) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["ハシヅメさん！ポップコーンどうしますか？"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ハシヅメさん！ポップコーンどうしますか？"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["じゃあ、ここのタイミングで"];
+                nameTag.textContent = characterName;
+                textList = ["じゃあ、ここのタイミングで"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 55) {
+        } else if (nextTextNum == 55) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                character_img.style.padding = "0";
-                name_tag.textContent = character_name;
-                option_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                characterImage.style.padding = "0";
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = `買っちゃおうか！${player_name}さんが選んでいいよ`;
+                let optionText = `買っちゃおうか！${playerName}さんが選んでいいよ`;
                 let option1 = "ガーリックチーズにしましょう！";
                 let option2 = "キャラメルにしましょう！";
                 let option1_text = "ガ、ガーリックチーズ…";
                 let option2_text = "キャラメル良いね！そうしよう！";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["了解です！"];
-                next_text_show();
+                textList = ["了解です！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 56) {
+        } else if (nextTextNum == 56) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜日が暮れる頃〜"];
-                next_text_show();
+                textList = ["〜日が暮れる頃〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 57) {
+        } else if (nextTextNum == 57) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["じゃ、見に行こっか"];
-                option1_flg = false;
-                option2_flg = false;
+                nameTag.textContent = characterName;
+                textList = ["じゃ、見に行こっか"];
+                option1Flg = false;
+                option2Flg = false;
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["今度食事に行こうってカツラさんから誘われたんですよ！"];
-                next_text_show();
+                textList = ["今度食事に行こうってカツラさんから誘われたんですよ！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 58) {
+        } else if (nextTextNum == 58) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜映画が終わり〜"];
-                next_text_show();
+                textList = ["〜映画が終わり〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kajima/Kajima_2.png";
-                character_img.style.padding = "0";
+                characterImage.src = "../img/character/Kajima/Kajima_2.png";
+                characterImage.style.padding = "0";
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = "タカヨ";
-                nameless_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = "タカヨ";
+                namelessFlg = true;
 
-                text_list = ["お食事いいですね！"];
-                next_text_show();
+                textList = ["お食事いいですね！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 59) {
+        } else if (nextTextNum == 59) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = character_name;
-                name_tag_box.style.display = "block";
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = characterName;
+                nextTagBox.style.display = "block";
 
-                text_list = ["いや〜あそこのシーン良かったよね！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["いや〜あそこのシーン良かったよね！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そこで相談なんですけど、いつもお世話になってるお礼に何か贈り物でもと思いまして"];
-                next_text_show();
+                textList = ["そこで相談なんですけど、いつもお世話になってるお礼に何か贈り物でもと思いまして"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 60) {
+        } else if (nextTextNum == 60) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["あのキャラもすっごく可愛かったです！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["あのキャラもすっごく可愛かったです！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kajima/Kajima_1.png";
-                name_tag.textContent = "カツヨシ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Kajima/Kajima_1.png";
+                nameTag.textContent = "カツヨシ";
+                namelessFlg = true;
 
-                text_list = ["なら腕時計とかどうですか？"];
-                next_text_show();
+                textList = ["なら腕時計とかどうですか？"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 61) {
+        } else if (nextTextNum == 61) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["だね〜"];
+                nameTag.textContent = characterName;
+                textList = ["だね〜"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kajima/Kajima_2.png";
-                name_tag.textContent = "タカヨ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Kajima/Kajima_2.png";
+                nameTag.textContent = "タカヨ";
+                namelessFlg = true;
 
-                text_list = ["そうですね、この前壊れてしまったと言っていましたし"];
-                next_text_show();
+                textList = ["そうですね、この前壊れてしまったと言っていましたし"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 62) {
+        } else if (nextTextNum == 62) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
-                option_flg = true;
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
+                optionFlg = true;
 
-                let option_text = "何かグッズでも買っていく？";
+                let optionText = "何かグッズでも買っていく？";
                 let option1 = "買いに行きましょう！";
                 let option2 = "ごめんなさい…お金が無いので買わないでおきます";
                 let option1_text = "お揃いのグッズ買おうよ！";
                 let option2_text = "そっかぁ…残念";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そうなんですね、なら腕時計にします！"];
-                next_text_show();
+                textList = ["そうなんですね、なら腕時計にします！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 63) {
+        } else if (nextTextNum == 63) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "タカヨ";
-                nameless_flg = true;
+                nameTag.textContent = "タカヨ";
+                namelessFlg = true;
 
-                text_list = ["頑張ってください！"];
-                next_text_show();
+                textList = ["頑張ってください！"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 64) {
+        } else if (nextTextNum == 64) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                loading_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                loadingFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = ["いや〜それにしても外暑いね〜"];
-                next_text_show();
+                textList = ["いや〜それにしても外暑いね〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Kajima/Kajima_1.png";
-                name_tag.textContent = "カツヨシ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Kajima/Kajima_1.png";
+                nameTag.textContent = "カツヨシ";
+                namelessFlg = true;
 
-                text_list = ["GOOD LUCK！"];
-                next_text_show();
+                textList = ["GOOD LUCK！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 65) {
+        } else if (nextTextNum == 65) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そ、そうですね"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["そ、そうですね"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["頑張ります！"];
-                next_text_show();
+                textList = ["頑張ります！"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 66) {
+        } else if (nextTextNum == 66) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["アイスでも食べる？"];
+                nameTag.textContent = characterName;
+                textList = ["アイスでも食べる？"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜食事の日〜"];
-                next_text_show();
+                textList = ["〜食事の日〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 67) {
+        } else if (nextTextNum == 67) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                optionFlg = true;
 
-                let option_text = "食べましょうか！涼みましょう！";
+                let optionText = "食べましょうか！涼みましょう！";
                 let option1 = "バニラ一緒に食べませんか？";
                 let option2 = "大納言あずき食べませんか？";
                 let option1_text = "そうしましょう！";
                 let option2_text = "だ、大納言あずき…？";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                character_img.style.padding = "50px 0 0 0";
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                characterImage.style.padding = "50px 0 0 0";
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = character_name;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = characterName;
 
-                text_list = [`${player_name}さん。そろそろ行きましょうか`];
-                next_text_show();
+                textList = [`${playerName}さん。そろそろ行きましょうか`];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 68) {
+        } else if (nextTextNum == 68) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そういえばお店ってどこに行くんですか？"];
-                next_text_show();
+                textList = ["そういえばお店ってどこに行くんですか？"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 69) {
+        } else if (nextTextNum == 69) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                option1_flg = false;
-                option2_flg = false;
+                nameTagFlg = true;
+                option1Flg = false;
+                option2Flg = false;
 
-                text_list = ["ん〜〜〜〜！！冷たくて美味しいです！"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["ん〜〜〜〜！！冷たくて美味しいです！"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["任せてください。いい所知ってるんで"];
+                nameTag.textContent = characterName;
+                textList = ["任せてください。いい所知ってるんで"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 70) {
+        } else if (nextTextNum == 70) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["結構涼めたね〜"];
+                nameTag.textContent = characterName;
+                textList = ["結構涼めたね〜"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜食事の後〜"];
-                next_text_show();
+                textList = ["〜食事の後〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
             
-        } else if (next_text_num == 71) {
+        } else if (nextTextNum == 71) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["そろそろ良い時間だし、今日はここら辺で解散にしようか"]
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["そろそろ良い時間だし、今日はここら辺で解散にしようか"]
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag_flg = true;
-                name_tag.textContent = player_name;
+                nextTagBox.style.display = "block";
+                nameTagFlg = true;
+                nameTag.textContent = playerName;
 
-                text_list = ["ここの和食すごく美味しかったです！"];
-                next_text_show();
+                textList = ["ここの和食すごく美味しかったです！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 72) {
+        } else if (nextTextNum == 72) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["そう…ですね…"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                textList = ["そう…ですね…"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = [`${first_person}、和食好きなんですよね〜`];
+                nameTagFlg = true;
+                textList = [`${firstPerson}、和食好きなんですよね〜`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 73) {
+        } else if (nextTextNum == 73) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["えと、その…"];
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nameTagFlg = true;
+                textList = ["えと、その…"];
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["どうやら僕の予想は当たっていたようですね！"];
-                next_text_show();
+                textList = ["どうやら僕の予想は当たっていたようですね！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 74) {
+        } else if (nextTextNum == 74) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["どうしたんですか？"];
+                nameTag.textContent = characterName;
+                textList = ["どうしたんですか？"];
 
-                next_text_show();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                nextTextShow();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = [`(すごい…${first_person}の好みまで見通されてるようでなんだか嬉しいっ！)`];
-                next_text_show();
+                textList = [`(すごい…${firstPerson}の好みまで見通されてるようでなんだか嬉しいっ！)`];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 75) {
+        } else if (nextTextNum == 75) {
 
-            if (root_list.Hashidume_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                option_flg = true;
+                nameTag.textContent = playerName;
+                optionFlg = true;
 
-                let option_text = "あの！ハシヅメさん…！";
-                let option1 = `${first_person}と付き合ってください！`;
-                let option2 = `${first_person}付き合ってくだせぇっ！`;
+                let optionText = "あの！ハシヅメさん…！";
+                let option1 = `${firstPerson}と付き合ってください！`;
+                let option2 = `${firstPerson}付き合ってくだせぇっ！`;
 
-                option_display(option_text, option1, option2);
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+                optionDisplay(optionText, option1, option2);
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["実は今日、渡したいものがありまして…！"];
+                nameTagFlg = true;
+                textList = ["実は今日、渡したいものがありまして…！"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 76) {
+        } else if (nextTextNum == 76) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["日頃のお礼として受け取っていただけば幸いです"];
+                nameTagFlg = true;
+                textList = ["日頃のお礼として受け取っていただけば幸いです"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 77) {
+        } else if (nextTextNum == 77) {
 
-            if (root_list.Hashidume_root_flg) {
-                ending_move();
-            } else if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.hashidumeRootFlg) {
+                endingMove();
+            } else if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["おお！腕時計じゃないですか！"];
+                nameTag.textContent = characterName;
+                textList = ["おお！腕時計じゃないですか！"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 78) {
+        } else if (nextTextNum == 78) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["最近壊れてしまって…ありがとうございます！"];
-                next_text_show();
+                textList = ["最近壊れてしまって…ありがとうございます！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 79) {
+        } else if (nextTextNum == 79) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
-                option_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
+                optionFlg = true;
 
-                let option_text = "いえいえ、いつもお世話になっていますので";
+                let optionText = "いえいえ、いつもお世話になっていますので";
                 let option1 = "その…できればなんですが、今後ともご飯とかいかがですか？";
                 let option2 = "カツラさんとのご飯楽しかったです！また行きたいです！";
                 let option1_text = "是非是非、また行きましょう";
                 let option2_text = "楽しんでもらえて何よりです！また行きましょう！";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
             }
 
-        } else if (next_text_num == 81) {
+        } else if (nextTextNum == 81) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(……これまでもカジマさん達やハシヅメさんとご飯に行ったことはあったけど)"];
-                next_text_show();
+                textList = ["(……これまでもカジマさん達やハシヅメさんとご飯に行ったことはあったけど)"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 82) {
+        } else if (nextTextNum == 82) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["(なんだかカツラさんだとまた別の嬉しさがあるというか…)"];
+                nameTagFlg = true;
+                textList = ["(なんだかカツラさんだとまた別の嬉しさがあるというか…)"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 83) {
+        } else if (nextTextNum == 83) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["(もしかして…)"];
+                nameTagFlg = true;
+                textList = ["(もしかして…)"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 84) {
+        } else if (nextTextNum == 84) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nameTagFlg = true;
+                loadingFlg = true;
 
-                text_list = ["(あれから何度もカツラさんとお食事に行ったり、時にはお買い物に出かけることもあった)"];
-                next_text_show();
-                log_remove();
+                textList = ["(あれから何度もカツラさんとお食事に行ったり、時にはお買い物に出かけることもあった)"];
+                nextTextShow();
+                logRemove();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 85) {
+        } else if (nextTextNum == 85) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["(そしてあの気持ちもカツラさんと会う度に増していった)"];
+                nameTagFlg = true;
+                textList = ["(そしてあの気持ちもカツラさんと会う度に増していった)"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 86) {
+        } else if (nextTextNum == 86) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
                 
-                name_tag_flg = true;
-                text_list = [`(気付けば${first_person}の側からカツラさんがいなくなることが少なくなった)`];
+                nameTagFlg = true;
+                textList = [`(気付けば${firstPerson}の側からカツラさんがいなくなることが少なくなった)`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 87) {
+        } else if (nextTextNum == 87) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["カツラさん、この資料ここに置いておきますね"];
+                nameTagFlg = true;
+                textList = ["カツラさん、この資料ここに置いておきますね"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 88) {
+        } else if (nextTextNum == 88) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_5.png";
-                character_img.style.padding = "0";
+                characterImage.src = "../img/character/Katura/Katura_5.png";
+                characterImage.style.padding = "0";
 
-                name_tag.textContent = character_name;
-                text_list = [`ありがとうね。${player_name}さん`];
+                nameTag.textContent = characterName;
+                textList = [`ありがとうね。${playerName}さん`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 89) {
+        } else if (nextTextNum == 89) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(なんだかカツラさんの元気がないように見えるな…)"];
-                next_text_show();
+                textList = ["(なんだかカツラさんの元気がないように見えるな…)"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 90) {
+        } else if (nextTextNum == 90) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["あ、そこってこうでしたっけ？"];
+                nameTagFlg = true;
+                textList = ["あ、そこってこうでしたっけ？"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 91) {
+        } else if (nextTextNum == 91) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                option_flg = true;
+                nameTag.textContent = characterName;
+                optionFlg = true;
 
-                let option_text = "ああ…これは…そうだね";
+                let optionText = "ああ…これは…そうだね";
                 let option1 = "そういえば、疲れを取れるツボ押しグッズがあるので試してみませんか？";
                 let option2 = "何か元気になれる飲み物でも買ってきましょうか？";
                 let option1_text = "ありがとう…";
                 let option2_text = "ありがとう。それなら甘めの飲み物をお願いします";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
             }
 
-        } else if (next_text_num == 93) {
+        } else if (nextTextNum == 93) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["じゃあ行ってきますね"];
-                next_text_show();
+                textList = ["じゃあ行ってきますね"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 94) {
+        } else if (nextTextNum == 94) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜戻ってきて〜"];
-                next_text_show();
+                textList = ["〜戻ってきて〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 95) {
+        } else if (nextTextNum == 95) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag_box.style.display = "block";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nextTagBox.style.display = "block";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["カツラさんあの話って本当なんですか？"];
-                next_text_show();
+                textList = ["カツラさんあの話って本当なんですか？"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 96) {
+        } else if (nextTextNum == 96) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                character_img.style.padding = "50px 0 0 0";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                characterImage.style.padding = "50px 0 0 0";
+                nameTag.textContent = characterName;
 
-                text_list = ["何の話です？まさか一発ギャグをしてくれるっていう！？"];
-                next_text_show();
+                textList = ["何の話です？まさか一発ギャグをしてくれるっていう！？"];
+                nextTextShow();
             }
             
-        } else if (next_text_num == 97) {
+        } else if (nextTextNum == 97) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["聞きましたよ！東京校の方がスタッフ不足だから向こうに異動するって！"];
-                next_text_show();
+                textList = ["聞きましたよ！東京校の方がスタッフ不足だから向こうに異動するって！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 98) {
+        } else if (nextTextNum == 98) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(え……)"];
-                next_text_show();
+                textList = ["(え……)"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 99) {
+        } else if (nextTextNum == 99) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
 
-                text_list = ["そうですか...聞いていたんですね"];
-                next_text_show();
+                textList = ["そうですか...聞いていたんですね"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 100) {
+        } else if (nextTextNum == 100) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Hashidume/Hashidume_1.png";
-                name_tag.textContent = "ハシヅメ";
-                nameless_flg = true;
+                characterImage.src = "../img/character/Hashidume/Hashidume_1.png";
+                nameTag.textContent = "ハシヅメ";
+                namelessFlg = true;
 
-                text_list = ["はい…少し…"];
-                next_text_show();
+                textList = ["はい…少し…"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 101) {
+        } else if (nextTextNum == 101) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(分からない…今どういう状況なのか…)"];
-                next_text_show();
+                textList = ["(分からない…今どういう状況なのか…)"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 102) {
+        } else if (nextTextNum == 102) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["(カツラさんが東京に行くことを拒絶しているようで…理解ができない…)"];
+                nameTagFlg = true;
+                textList = ["(カツラさんが東京に行くことを拒絶しているようで…理解ができない…)"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 103) {
+        } else if (nextTextNum == 103) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_flg = true;
-                option_flg = true;
+                characterImage.src = "#";
+                nameTagFlg = true;
+                optionFlg = true;
 
-                let option_text = "(でも…ここであの気持ちと向き合わないと…！)";
+                let optionText = "(でも…ここであの気持ちと向き合わないと…！)";
                 let option1 = "告白する";
                 let option2 = "・・・";
                 let option1_text = "(言葉が出ない…でも…！)";
                 let option2_text = "・・・";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
             }
 
-        } else if (next_text_num == 105) {
+        } else if (nextTextNum == 105) {
 
-            if (root_list.Katura_root_flg) {
-                let option_text = "テキスト";
+            if (rootList.katuraRootFlg) {
+                let optionText = "テキスト";
                 let option1 = "告白をしたい！";
                 let option2 = "・・・ ";
                 let option1_text = "カツラさん！！すっっっ！！…きやきのまね～(激スベり)";
                 let option2_text = "(そうだ…今好きだなんて言ったらきっとカツラさんも困るよ…)";
 
-                option_flg = true;
-                direct_option_flg = true;
+                optionFlg = true;
+                directOptionFlg = true;
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
             }
 
-        } else if (next_text_num == 107) {
+        } else if (nextTextNum == 107) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = "その場にいる全員";
-                nameless_flg = true;
+                nameTag.textContent = "その場にいる全員";
+                namelessFlg = true;
 
-                text_list = ["・・・"];
-                next_text_show();
+                textList = ["・・・"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 108) {
+        } else if (nextTextNum == 108) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
-                text_list = ["…出世…ってことですかね…"];
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
+                textList = ["…出世…ってことですかね…"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 109) {
+        } else if (nextTextNum == 109) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["(…そうだ、カツラさんの言った通り出世したと捉えることだって出来る)"];
-                next_text_show();
+                textList = ["(…そうだ、カツラさんの言った通り出世したと捉えることだって出来る)"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 110) {
+        } else if (nextTextNum == 110) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = ["(うん…応援することにしよう！)"];
+                nameTagFlg = true;
+                textList = ["(うん…応援することにしよう！)"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 111) {
+        } else if (nextTextNum == 111) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "#";
-                name_tag_box.style.display = "none";
-                narration_flg = true;
-                loading_flg = true;
+                characterImage.src = "#";
+                nextTagBox.style.display = "none";
+                narrationFlg = true;
+                loadingFlg = true;
 
-                text_list = ["〜その日の帰り〜"];
-                next_text_show();
+                textList = ["〜その日の帰り〜"];
+                nextTextShow();
                 loading();
 
                 loading().then(() => {
                     setTimeout(() => {
                         document.getElementById("loading").style.display = "none";
                     }, 1500);
-                    loading_flg = false;
+                    loadingFlg = false;
                 });
             }
 
-        } else if (next_text_num == 112) {
+        } else if (nextTextNum == 112) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_box.style.display = "block";
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nextTagBox.style.display = "block";
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["カツラさん、出世？おめでとうございます！"];
-                next_text_show();
+                textList = ["カツラさん、出世？おめでとうございます！"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 113) {
+        } else if (nextTextNum == 113) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                character_img.src = "../img/character/Katura/Katura_1.png";
-                name_tag.textContent = character_name;
-                text_list = ["ありがとう。でも正直困っているところはあるんですよね"];
+                characterImage.src = "../img/character/Katura/Katura_1.png";
+                nameTag.textContent = characterName;
+                textList = ["ありがとう。でも正直困っているところはあるんですよね"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 114) {
+        } else if (nextTextNum == 114) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["やっぱり名古屋校でこうして仕事をするのも楽しかったので"];
-                next_text_show();
+                textList = ["やっぱり名古屋校でこうして仕事をするのも楽しかったので"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 115) {
+        } else if (nextTextNum == 115) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = player_name;
-                name_tag_flg = true;
+                nameTag.textContent = playerName;
+                nameTagFlg = true;
 
-                text_list = ["大きいことに挑戦するいいチャンスじゃないんですか？"];
-                next_text_show();
+                textList = ["大きいことに挑戦するいいチャンスじゃないんですか？"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 116) {
+        } else if (nextTextNum == 116) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                option_flg = true;
+                nameTagFlg = true;
+                optionFlg = true;
 
-                let option_text = "それにカツラさんだって挑戦することが大事って言ってたじゃないですか";
+                let optionText = "それにカツラさんだって挑戦することが大事って言ってたじゃないですか";
                 let option1 = "正直に言うと…カツラさんのこと好きですよ。人としても、それ以外の意味でも";
                 let option2 = "カツラさんは誰からも尊敬される人だと思ってますよ！";
                 let option1_text = "そんな魅力的な方が東京に行ったら失敗するなんて考えられません！";
                 let option2_text = "そんな人が東京で失敗なんてある訳ないじゃないですか！";
 
-                delivery_text_list = [option1_text, option2_text];
-                option_display(option_text, option1, option2);
+                deliveryTextList = [option1_text, option2_text];
+                optionDisplay(optionText, option1, option2);
             }
 
-        } else if (next_text_num == 118) {
+        } else if (nextTextNum == 118) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag_flg = true;
-                text_list = [`まあ…${first_person}の言葉は独り言程度に受け取ってもらえればいいので…`];
+                nameTagFlg = true;
+                textList = [`まあ…${firstPerson}の言葉は独り言程度に受け取ってもらえればいいので…`];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 119) {
+        } else if (nextTextNum == 119) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                name_tag.textContent = character_name;
-                text_list = ["そうだね…決めたよ"];
+                nameTag.textContent = characterName;
+                textList = ["そうだね…決めたよ"];
 
-                next_text_show();
+                nextTextShow();
             }
 
-        } else if (next_text_num == 120) {
+        } else if (nextTextNum == 120) {
 
-            if (root_list.Katura_root_flg) {
-                un_direct_option_flg();
+            if (rootList.katuraRootFlg) {
+                unDirectOptionFlg();
 
-                text_list = ["僕は……"];
-                next_text_show();
+                textList = ["僕は……"];
+                nextTextShow();
             }
 
-        } else if (next_text_num == 121) {
+        } else if (nextTextNum == 121) {
 
-            if (root_list.Katura_root_flg) {
-                ending_move();
+            if (rootList.katuraRootFlg) {
+                endingMove();
             }
 
         }
         
         setTimeout(() => {
-            next_button.style.display = "none";
+            nextButton.style.display = "none";
         }, 310);
 
-        async function next_text_show() {
-            if (!option_flg) {
-                if (loading_flg) {
+        async function nextTextShow() {
+            if (!optionFlg) {
+                if (loadingFlg) {
                     setTimeout(() => {
-                        show_text(text_division(text_list));
+                        showText(textDivision(textList));
                     }, 1500);
-                } else if (!end_flg) {
-                    show_text(text_division(text_list));
+                } else if (!endFlg) {
+                    showText(textDivision(textList));
                 }
             }
         }
 
-        function un_direct_option_flg() {
-            if (!direct_option_flg) {
-                current_text.innerHTML = ""; // 現在のテキストを初期化
+        function unDirectOptionFlg() {
+            if (!directOptionFlg) {
+                currentText.innerHTML = ""; // 現在のテキストを初期化
             }
         }
         
     }
-    console.log("現在のテキスト番号 : " + String(next_text_num)); // 現在のテキスト番号 (デバッグ用)
+    console.log("現在のテキスト番号 : " + String(nextTextNum)); // 現在のテキスト番号 (デバッグ用)
 }
 
 // エンディング画面へ遷移
-function ending_move() {
+function endingMove() {
     const loading = document.getElementById("loading");
-    localStorage.setItem("favourable_impression", favourable_impression);
+    localStorage.setItem("favourableImpression", favourableImpression);
 
-    loading_display().then(() => {
+    loadingDisplay().then(() => {
         window.location = "ending.html"; // resolveが返されたらURLを変更してページを遷移
     });
 
-    function loading_display() {
+    function loadingDisplay() {
         return new Promise(async (resolve) => {
             loading.style.backgroundColor = "#fff";
             loading.style.display = "block";
@@ -3962,7 +3958,7 @@ function ending_move() {
 async function loading() {
     return new Promise(async (resolve) => {
         const loading = document.getElementById("loading");
-        const background_img = document.getElementById("main_box");
+        const backgroundImage = document.getElementById("main_box");
 
         loading.style.display = "block";
 
@@ -3973,69 +3969,69 @@ async function loading() {
         }, 100);
 
         setTimeout(() => {
-            if (root_list.Kitamura_root_flg) {
-                if (next_text_num == 7) {
-                    background_img.style.backgroundImage = "url('../img/background/503_class2.jpg')";
-                } else if (next_text_num == 19) {
-                    background_img.style.backgroundImage = "url('../img/background/5F_space3.jpg')";
-                } else if (next_text_num == 33) {
-                    background_img.style.backgroundImage = "url('../img/background/4F_space2.jpg')";
-                } else if (next_text_num == 38) {
-                    background_img.style.backgroundImage = "url('../img/background/Nagoya_view.jpg')";
+            if (rootList.kitamuraRootFlg) {
+                if (nextTextNum == 7) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/503_class2.jpg')";
+                } else if (nextTextNum == 19) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/5F_space3.jpg')";
+                } else if (nextTextNum == 33) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/4F_space2.jpg')";
+                } else if (nextTextNum == 38) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/Nagoya_view.jpg')";
                 }
-            } else if (root_list.Hashidume_root_flg) {
-                if (next_text_num == 9) {
-                    background_img.style.backgroundImage = "url('../img/background/402_class3.jpg')";
-                } else if (next_text_num == 25) {
-                    background_img.style.backgroundImage = "url('../img/background/4F_space1.jpg')";
-                } else if (next_text_num == 42) {
-                    background_img.style.backgroundImage = "url('../img/background/2F_space1.jpg')";
-                } else if (next_text_num == 53) {
-                    background_img.style.backgroundImage = "url('../img/background/cinema_shop.png')";
-                } else if (next_text_num == 64) {
-                    background_img.style.backgroundImage = "url('../img/background/ice_cream_store.jpg')";
+            } else if (rootList.hashidumeRootFlg) {
+                if (nextTextNum == 9) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/402_class3.jpg')";
+                } else if (nextTextNum == 25) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/4F_space1.jpg')";
+                } else if (nextTextNum == 42) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/2F_space1.jpg')";
+                } else if (nextTextNum == 53) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/cinema_shop.png')";
+                } else if (nextTextNum == 64) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/ice_cream_store.jpg')";
                 }
-            } else if (root_list.Komatsu_root_flg) {
-                if (next_text_num == 5) {
-                    background_img.style.backgroundImage = "url('../img/background/402_class2.jpg')";
-                } else if (next_text_num == 17) {
-                    background_img.style.backgroundImage = "url('../img/background/5F_space2.jpg')";
-                } else if (next_text_num == 30) {
-                    background_img.style.backgroundImage = "url('../img/background/Night_Park.jpg')";
-                } else if (next_text_num == 35) {
-                    background_img.style.backgroundImage = "url('../img/background/Christmas tree.webp')";
+            } else if (rootList.komatsuRootFlg) {
+                if (nextTextNum == 5) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/402_class2.jpg')";
+                } else if (nextTextNum == 17) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/5F_space2.jpg')";
+                } else if (nextTextNum == 30) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/Night_Park.jpg')";
+                } else if (nextTextNum == 35) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/Christmas tree.webp')";
                 }
-            } else if (root_list.Hukaya_root_flg) {
-                if (next_text_num == 6) {
-                    background_img.style.backgroundImage = "url('../img/background/504_class1.jpg')";
-                } else if (next_text_num == 18) {
-                    background_img.style.backgroundImage = "url('../img/background/5F_space1.jpg')";
-                } else if (next_text_num == 25) {
-                    background_img.style.backgroundImage = "url('../img/background/restaurant.jpg')";
-                } else if (next_text_num == 34) {
-                    background_img.style.backgroundImage = "url('../img/background/504_class1.jpg')";
-                } else if (next_text_num == 41) {
-                    background_img.style.backgroundImage = "url('../img/background/normal_restaurant.jpg')";
-                } else if (next_text_num == 45) {
-                    background_img.style.backgroundImage = "url('../img/background/Night_street.jpg')";
+            } else if (rootList.hukayaRootFlg) {
+                if (nextTextNum == 6) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/504_class1.jpg')";
+                } else if (nextTextNum == 18) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/5F_space1.jpg')";
+                } else if (nextTextNum == 25) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/restaurant.jpg')";
+                } else if (nextTextNum == 34) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/504_class1.jpg')";
+                } else if (nextTextNum == 41) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/normal_restaurant.jpg')";
+                } else if (nextTextNum == 45) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/Night_street.jpg')";
                 }
-            } else if (root_list.Katura_root_flg) {
-                if (next_text_num == 11) {
-                    background_img.style.backgroundImage = "url('../img/background/403_class1.jpg')";
-                } else if (next_text_num == 40) {
-                    background_img.style.backgroundImage = "url('../img/background/5F_space3.jpg')";
-                } else if (next_text_num == 47) {
-                    background_img.style.backgroundImage = "url('../img/background/4F_space1.jpg')";
-                } else if (next_text_num == 56) {
-                    background_img.style.backgroundImage = "url('../img/background/4F_space2.jpg')";
-                } else if (next_text_num == 66) {
-                    background_img.style.backgroundImage = "url('../img/background/2F_space1.jpg')";
-                } else if (next_text_num == 70) {
-                    background_img.style.backgroundImage = "url('../img/background/restaurant.jpg')";
-                } else if (next_text_num == 84) {
-                    background_img.style.backgroundImage = "url('../img/background/5F_space1.jpg')";
-                } else if (next_text_num == 111) {
-                    background_img.style.backgroundImage = "url('../img/background/2F_space2.jpg')";
+            } else if (rootList.katuraRootFlg) {
+                if (nextTextNum == 11) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/403_class1.jpg')";
+                } else if (nextTextNum == 40) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/5F_space3.jpg')";
+                } else if (nextTextNum == 47) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/4F_space1.jpg')";
+                } else if (nextTextNum == 56) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/4F_space2.jpg')";
+                } else if (nextTextNum == 66) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/2F_space1.jpg')";
+                } else if (nextTextNum == 70) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/restaurant.jpg')";
+                } else if (nextTextNum == 84) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/5F_space1.jpg')";
+                } else if (nextTextNum == 111) {
+                    backgroundImage.style.backgroundImage = "url('../img/background/2F_space2.jpg')";
                 }
             }
 
@@ -4046,86 +4042,86 @@ async function loading() {
 }
 
 // ログの中身を削除
-function log_remove() {
-    const log_sidebar_text = document.getElementById("log_sidebar_text");
+function logRemove() {
+    const logSidebarText = document.getElementById("log_sidebar_text");
 
-    while (log_sidebar_text.firstChild) {
-        log_sidebar_text.removeChild(log_sidebar_text.firstChild);
+    while (logSidebarText.firstChild) {
+        logSidebarText.removeChild(logSidebarText.firstChild);
     }
 }
 
 // テキストを一文字づつ表示
-async function show_text(passed_text_list) {
+async function showText(passedTextList) {
     return new Promise(async (resolve) => {
-        if (text_skip_flg) {
+        if (textSkipFlg) {
             resolve();
             return;
         }
-        if (current_index < passed_text_list.length) {
-            if (option_selected_flg) {
-                let current_text = document.getElementById("current_text");
-                let text_window = document.getElementById("text_window");
-                let character_img = document.getElementById("character_img_box");
-                let option_box1 = document.getElementById("option_box1");
-                let option_box2 = document.getElementById("option_box2");
+        if (currentIndex < passedTextList.length) {
+            if (optionSelectedFlg) {
+                let currentText = document.getElementById("currentText");
+                let textWindow = document.getElementById("text_window");
+                let characterImage = document.getElementById("characterImage_box");
+                let optionBox1 = document.getElementById("optionBox1");
+                let optionBox2 = document.getElementById("optionBox2");
     
-                async function text_window_reset() {
+                async function textWindowReset() {
                     await new Promise(resolve => setTimeout(resolve, 775));
-                    text_window.style.display = "flex"; // テキストウィンドウのdisplayを元に戻す(flex)
-                    text_window.style.height = "250px"; // テキストウィンドウの高さを元に戻す
-                    character_img.className = "character_img_box"; // キャラクターの背景を元に戻す
-                    current_text.className = "current_text"; // 現在のテキストのクラスを元に戻す
+                    textWindow.style.display = "flex"; // テキストウィンドウのdisplayを元に戻す(flex)
+                    textWindow.style.height = "250px"; // テキストウィンドウの高さを元に戻す
+                    characterImage.className = "characterImage_box"; // キャラクターの背景を元に戻す
+                    currentText.className = "currentText"; // 現在のテキストのクラスを元に戻す
 
-                    option_box1.className = "option_box";
-                    option_box2.className = "option_box";
-                    option_box1.style.display = "flex";
-                    option_box2.style.display = "flex";
+                    optionBox1.className = "optionBox";
+                    optionBox2.className = "optionBox";
+                    optionBox1.style.display = "flex";
+                    optionBox2.style.display = "flex";
     
                     await new Promise(resolve => setTimeout(resolve, 1075));
-                    current_text.innerHTML = current_text.innerHTML.concat(passed_text_list[current_index]); // 新しいテキストを挿入
-                    current_index++;
+                    currentText.innerHTML = currentText.innerHTML.concat(passedTextList[currentIndex]); // 新しいテキストを挿入
+                    currentIndex++;
 
-                    if (!direct_option_flg) {
+                    if (!directOptionFlg) {
                         setTimeout(() => {
-                            show_text(passed_text_list).then(resolve);
+                            showText(passedTextList).then(resolve);
                         }, 100);
                     }
                 }
-                text_window_reset();
+                textWindowReset();
                 
-                option_selected_flg = false;
-                next_text_num += 1;
+                optionSelectedFlg = false;
+                nextTextNum += 1;
             } else {
-                current_text.innerHTML = current_text.innerHTML.concat(passed_text_list[current_index]); // 新しいテキストを挿入
-                current_index++;
+                currentText.innerHTML = currentText.innerHTML.concat(passedTextList[currentIndex]); // 新しいテキストを挿入
+                currentIndex++;
                 setTimeout(() => {
-                    if (!text_skip_flg) {
-                        show_text(passed_text_list).then(resolve);
+                    if (!textSkipFlg) {
+                        showText(passedTextList).then(resolve);
                     } else {
                         resolve();
                     }
                 }, 100);
             }
         } else {
-            if (player_text_flg) {
-                log_add(passed_text_list);
+            if (playerTextFlg) {
+                logAdd(passedTextList);
     
-                current_index = 0; // テキストのindex番号をリセット
-                text_display_flg = true; // Enterキー入力を受け付け
+                currentIndex = 0; // テキストのindex番号をリセット
+                textDisplayFlg = true; // Enterキー入力を受け付け
             } else {
-                log_add(passed_text_list); // テキストをログに追加
+                logAdd(passedTextList); // テキストをログに追加
     
-                current_index = 0; // テキストのindex番号をリセット
-                text_display_flg = true; // Enterキー入力を受け付け
+                currentIndex = 0; // テキストのindex番号をリセット
+                textDisplayFlg = true; // Enterキー入力を受け付け
     
-                if (next_text_num != 9999) { // 選択肢があるテキスト以外の場合 (通常テキスト)
+                if (nextTextNum != 9999) { // 選択肢があるテキスト以外の場合 (通常テキスト)
                     setTimeout(() => {
-                        async function next_button_display() {
-                            delayed_display();
+                        async function nextButton_display() {
+                            delayedDisplay();
                             await new Promise(resolve => setTimeout(resolve, 500));
-                            first_next_button_animation = true;
+                            firstNextButtonAnimation = true;
                         }
-                        next_button_display();
+                        nextButton_display();
                     }, 200);
                 }
             }
@@ -4135,296 +4131,296 @@ async function show_text(passed_text_list) {
 }
 
 // テキストをログに追加
-function log_add(passed_text_list, passed_option_addition) {
-    if (!narration_flg) {
-        let original_text = passed_text_list.join("") // 分割したテキストを元に戻す
-        let log_text_box = document.createElement("div"); // 新しく<div>要素を作成する
-        let log_text = document.createElement("p"); // セリフを入れる<p>要素を作成する
-        let log_name_tag = document.createElement("p"); // ネームタグを入れる<p>要素を作成する
-        let option_addition = document.createElement("p"); // 選択肢を選んだ場合のセリフに追加するテキストを入れる<p>要素を作成する
+function logAdd(passedTextList, passedOptionAddition) {
+    if (!narrationFlg) {
+        let originalText = passedTextList.join("") // 分割したテキストを元に戻す
+        let logTextBox = document.createElement("div"); // 新しく<div>要素を作成する
+        let logText = document.createElement("p"); // セリフを入れる<p>要素を作成する
+        let logNameTag = document.createElement("p"); // ネームタグを入れる<p>要素を作成する
+        let optionAddition = document.createElement("p"); // 選択肢を選んだ場合のセリフに追加するテキストを入れる<p>要素を作成する
 
-        log_text_box.className = "log_text_box"; // 作成した<div>要素にclassをつける
-        log_text.className = "log_text"; // 作成したセリフを入れる<p>要素にclassをつける
-        log_name_tag.className = "log_name_tag"; // 作成したネームタグを入れる<p>要素にclassをつける
-        option_addition.className = "option_addition"; // 作成したセリフに追加するテキストにclassをつける
+        logTextBox.className = "logTextBox"; // 作成した<div>要素にclassをつける
+        logText.className = "logText"; // 作成したセリフを入れる<p>要素にclassをつける
+        logNameTag.className = "logNameTag"; // 作成したネームタグを入れる<p>要素にclassをつける
+        optionAddition.className = "optionAddition"; // 作成したセリフに追加するテキストにclassをつける
 
-        log_text.textContent = original_text;
-        option_addition.textContent = passed_option_addition;
+        logText.textContent = originalText;
+        optionAddition.textContent = passedOptionAddition;
 
         // <div>要素にネームタグの<p>要素を追加
-        log_text_box.appendChild(log_name_tag);
+        logTextBox.appendChild(logNameTag);
 
-        if (name_tag_flg || nameless_flg) {
-            let log_text_player_box = document.createElement("div"); // 選択肢を選んだ場合のテキストを入れる<div>要素を作成
+        if (nameTagFlg || namelessFlg) {
+            let logTextPlayerBox = document.createElement("div"); // 選択肢を選んだ場合のテキストを入れる<div>要素を作成
 
-            log_text_player_box.style.display = "flex";
-            option_addition.style.color = "#fff";
-            option_addition.style.margin = "0 15px 0 0";
+            logTextPlayerBox.style.display = "flex";
+            optionAddition.style.color = "#fff";
+            optionAddition.style.margin = "0 15px 0 0";
 
-            log_text_player_box.appendChild(option_addition);
-            log_text_player_box.appendChild(log_text);
-            log_text_box.appendChild(log_text_player_box);
+            logTextPlayerBox.appendChild(optionAddition);
+            logTextPlayerBox.appendChild(logText);
+            logTextBox.appendChild(logTextPlayerBox);
 
-            if (nameless_flg) { // プレイヤー、キャラクター以外のセリフの場合
-                log_name_tag.textContent = name_tag.textContent;
-                nameless_flg = false
+            if (namelessFlg) { // プレイヤー、キャラクター以外のセリフの場合
+                logNameTag.textContent = nameTag.textContent;
+                namelessFlg = false
             } else { // プレイヤーのセリフの場合
-                log_name_tag.textContent = player_name; // ネームタグにプレイヤー名を入れる
+                logNameTag.textContent = playerName; // ネームタグにプレイヤー名を入れる
 
-                let player_log_text = log_name_tag.nextElementSibling; // プレイヤー名の兄弟要素(プレイヤーのセリフ)を取得
-                player_log_text.style.color = "lightgreen"; // プレイヤーのセリフのスタイルを変更
+                let playerLogText = logNameTag.nextElementSibling; // プレイヤー名の兄弟要素(プレイヤーのセリフ)を取得
+                playerLogText.style.color = "lightgreen"; // プレイヤーのセリフのスタイルを変更
 
-                name_tag_flg = false
+                nameTagFlg = false
             }
         } else { // キャラクターのセリフの場合
-            log_text_box.appendChild(log_text);
-            log_name_tag.textContent = character_name; // ネームタグにキャラクター名を入れる
+            logTextBox.appendChild(logText);
+            logNameTag.textContent = characterName; // ネームタグにキャラクター名を入れる
         }
 
-        let log_sidebar_text = document.getElementById("log_sidebar_text"); // 作成した<div>要素と<p>要素を配置する親要素を取得
-        log_sidebar_text.appendChild(log_text_box); // ログにテキストボックスを配置
+        let logSidebarText = document.getElementById("log_sidebar_text"); // 作成した<div>要素と<p>要素を配置する親要素を取得
+        logSidebarText.appendChild(logTextBox); // ログにテキストボックスを配置
     }
-    narration_flg = false;
+    narrationFlg = false;
 }
 
 // テキストが表示し終わってからボタンを表示する
-function delayed_display() {
+function delayedDisplay() {
     document.getElementById("next_button").style.display = "block";
 }
 
 // ログを表示、非表示
-function log_animation() {
-    let log_sidebar = document.getElementById("log_sidebar");
-    let log_icon = document.getElementById("log_icon");
+function logAnimation() {
+    let logSidebar = document.getElementById("log_sidebar");
+    let logIcon = document.getElementById("log_icon");
 
-    log_sidebar.style.display = "block"; // ログの状態を"表示"に
+    logSidebar.style.display = "block"; // ログの状態を"表示"に
 
-    if (!log_animation_flg) {
-        if (!log_sidebar_flg) { // ログを表示
-            log_next_flg = true;
-            log_animation_flg = true;
+    if (!logAnimationFlg) {
+        if (!logSidebarFlg) { // ログを表示
+            logNextFlg = true;
+            logAnimationFlg = true;
 
-            next_text_sound.play(); // mp3ファイルを再生
+            nextTextSound.play(); // mp3ファイルを再生
     
-            async function log_display_animation() {
+            async function logDisplayAnimation() {
                 await new Promise(resolve => setTimeout(resolve, 100));
             
-                log_sidebar.className = "log_sidebar_animation"; // アニメーションを設定しているクラスに変更
+                logSidebar.className = "log_sidebar_animation"; // アニメーションを設定しているクラスに変更
             
                 // ログボタンのスタイルを変更
-                log_icon.src = "../img/icon/log_cancel.svg";
-                log_icon.style.width = "30px";
-                log_icon.style.margin = "15.5px 0 0 0";
+                logIcon.src = "../img/icon/log_cancel.svg";
+                logIcon.style.width = "30px";
+                logIcon.style.margin = "15.5px 0 0 0";
 
-                log_animation_flg = false;
+                logAnimationFlg = false;
             }
-            log_display_animation();
+            logDisplayAnimation();
         
-            log_sidebar_flg = true;
+            logSidebarFlg = true;
         } else {// ログを非表示
-            log_animation_flg = true;
-            log_next_flg = false;
+            logAnimationFlg = true;
+            logNextFlg = false;
 
-            log_sidebar.className = "log_sidebar"; // 元のクラスに戻す
-            log_close_sound.play(); // mp3ファイルを再生
+            logSidebar.className = "log_sidebar"; // 元のクラスに戻す
+            logCloseSound.play(); // mp3ファイルを再生
         
             // ログボタンのスタイルを変更
-            log_icon.src = "../img/icon/log_button_icon.svg";
-            log_icon.style.width = "25px";
-            log_icon.style.margin = "17.5px 0 0 0";
+            logIcon.src = "../img/icon/log_button_icon.svg";
+            logIcon.style.width = "25px";
+            logIcon.style.margin = "17.5px 0 0 0";
         
-            async function log_close_animation() {
+            async function logCloseAnimation() {
                 await new Promise(resolve => setTimeout(resolve, 250));
                 document.getElementById("log_box").style.display = "block"; // ログのボタンを表示
             
                 await new Promise(resolve => setTimeout(resolve, 410));
-                log_sidebar.style.display = "none"; // ログを非表示
+                logSidebar.style.display = "none"; // ログを非表示
 
-                log_animation_flg = false;
+                logAnimationFlg = false;
             }
-            log_close_animation();
+            logCloseAnimation();
         
-            log_sidebar_flg = false;
+            logSidebarFlg = false;
         }
     }
 }
 
 // 選択肢を表示
-function option_display(passed_option_text, option1, option2) {
-    let text_window = document.getElementById("text_window"); // テキストウィンドウを取得
+function optionDisplay(passedOptionText, option1, option2) {
+    let textWindow = document.getElementById("text_window"); // テキストウィンドウを取得
     let option = document.getElementById("option"); // 選択肢を取得
-    let option_text1 = document.getElementById("option_text1"); // 一つ目の選択肢を取得
-    let option_text2 = document.getElementById("option_text2"); // 二つ目の選択肢を取得
-    let current_text = document.getElementById("current_text"); // 現在のテキストを取得
+    let optionText1 = document.getElementById("optionText1"); // 一つ目の選択肢を取得
+    let optionText2 = document.getElementById("optionText2"); // 二つ目の選択肢を取得
+    let currentText = document.getElementById("currentText"); // 現在のテキストを取得
 
-    let option_text_list = [passed_option_text];
-    let option_text = [option1, option2]; // 選択肢のテキスト
+    let optionTextList = [passedOptionText];
+    let optionText = [option1, option2]; // 選択肢のテキスト
 
-    text_window.style.display = "block"; // テキストウィンドウのdisplayをflexからblockに変更
-    current_text.className = "current_text_option"; // 表示されているテキストを選択肢バージョンに変更
+    textWindow.style.display = "block"; // テキストウィンドウのdisplayをflexからblockに変更
+    currentText.className = "currentText_option"; // 表示されているテキストを選択肢バージョンに変更
 
     // 選択肢にテキストを挿入する
-    option_text1.textContent = option_text[0];
-    option_text2.textContent = option_text[1];
+    optionText1.textContent = optionText[0];
+    optionText2.textContent = optionText[1];
 
-    player_text_flg = true;
+    playerTextFlg = true;
     setTimeout(() => {
-        document.getElementById("character_img_box").className = "character_img_box_option" // キャラクターコンテナのクラスを変更
-        async function option_text_display() {
-            if (!direct_option_flg) {
-                await show_text(text_division(option_text_list)) // テキストを次に進める
+        document.getElementById("characterImage_box").className = "characterImage_box_option" // キャラクターコンテナのクラスを変更
+        async function optionText_display() {
+            if (!directOptionFlg) {
+                await showText(textDivision(optionTextList)) // テキストを次に進める
             }
             setTimeout(() => {
-                text_window.style.height = "350px"; // テキストウィンドウの高さを変更
+                textWindow.style.height = "350px"; // テキストウィンドウの高さを変更
                 option.style.display = "block" // 選択肢を表示
-                option_flg = true;
+                optionFlg = true;
             }, 250);
         }
-        option_text_display();
+        optionText_display();
     }, 500);
 }
 
 // 選択肢によって分岐
 function option(num) {
-    let option_box1 = document.getElementById("option_box1");
-    let option_box2 = document.getElementById("option_box2");
-    let option_text_addition = "＞";
-    let passed_text_list = [];
+    let optionBox1 = document.getElementById("optionBox1");
+    let optionBox2 = document.getElementById("optionBox2");
+    let optionTextAddition = "＞";
+    let passedTextList = [];
 
-    if (option_flg) {
-        next_text_sound.play(); // mp3ファイルを再生
-        option_selected_flg = true;
-        name_tag_flg = true;
+    if (optionFlg) {
+        nextTextSound.play(); // mp3ファイルを再生
+        optionSelectedFlg = true;
+        nameTagFlg = true;
 
         if (num == 1) {
-            option1_flg = true;
+            option1Flg = true;
 
-            if (root_list.Kitamura_root_flg) {
-                if (next_text_num == 27) { // 好感度の変化
-                    favourable_impression += 20;
-                    Kitamura_img();
-                } else if (next_text_num == 31) {
-                    favourable_impression += 20;
-                    Kitamura_img();
+            if (rootList.kitamuraRootFlg) {
+                if (nextTextNum == 27) { // 好感度の変化
+                    favourableImpression += 20;
+                    kitamuraImage();
+                } else if (nextTextNum == 31) {
+                    favourableImpression += 20;
+                    kitamuraImage();
                 }
-            } else if (root_list.Hashidume_root_flg) {
-                if (next_text_num == 36) {
-                    option_selected(false);
-                } else if (next_text_num == 55) {
-                    favourable_impression -= 20;
-                } else if (next_text_num == 67) {
-                    favourable_impression += 10;
-                    option_selected(false);
+            } else if (rootList.hashidumeRootFlg) {
+                if (nextTextNum == 36) {
+                    optionSelected(false);
+                } else if (nextTextNum == 55) {
+                    favourableImpression -= 20;
+                } else if (nextTextNum == 67) {
+                    favourableImpression += 10;
+                    optionSelected(false);
                 }
-            } else if (root_list.Komatsu_root_flg) {
-                if (next_text_num == 24) {
-                    favourable_impression += 20;
-                } else if (next_text_num == 27) {
-                    favourable_impression += 10;
+            } else if (rootList.komatsuRootFlg) {
+                if (nextTextNum == 24) {
+                    favourableImpression += 20;
+                } else if (nextTextNum == 27) {
+                    favourableImpression += 10;
                 }
-            } else if (root_list.Hukaya_root_flg) {
-                if (next_text_num == 27) {
-                    favourable_impression += 20;
-                } else if (next_text_num == 43) {
-                    favourable_impression += 20;
+            } else if (rootList.hukayaRootFlg) {
+                if (nextTextNum == 27) {
+                    favourableImpression += 20;
+                } else if (nextTextNum == 43) {
+                    favourableImpression += 20;
                 }
-            } else if (root_list.Katura_root_flg) {
-                if (next_text_num == 79) {
-                    favourable_impression += 10;
-                    option_selected(false);
-                } else if (next_text_num == 91) {
-                    favourable_impression -= 10;
-                } else if (next_text_num == 105) {
-                    favourable_impression -= 30;
+            } else if (rootList.katuraRootFlg) {
+                if (nextTextNum == 79) {
+                    favourableImpression += 10;
+                    optionSelected(false);
+                } else if (nextTextNum == 91) {
+                    favourableImpression -= 10;
+                } else if (nextTextNum == 105) {
+                    favourableImpression -= 30;
                 }
             }
 
-            text_list = [delivery_text_list[0]];
-            option_box1.className = "option_box_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
-            option_box2.style.display = "none"; // 選択していない選択肢を非表示
-            passed_text_list = [document.getElementById("option_text1").textContent];
+            textList = [deliveryTextList[0]];
+            optionBox1.className = "optionBox_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
+            optionBox2.style.display = "none"; // 選択していない選択肢を非表示
+            passedTextList = [document.getElementById("optionText1").textContent];
 
-            show_text(text_division(text_list));
-            log_add(passed_text_list, option_text_addition);
+            showText(textDivision(textList));
+            logAdd(passedTextList, optionTextAddition);
         } else {
-            option2_flg = true;
+            option2Flg = true;
 
-            if (root_list.Kitamura_root_flg) {
-                if (next_text_num == 25) { // 好感度の変化
-                    favourable_impression += 10;
-                    Kitamura_img();
-                } else if (next_text_num == 31) {
-                    favourable_impression -= 30;
-                    Kitamura_img();
-                } else if (next_text_num == 41) {
-                    favourable_impression += 20;
-                    Kitamura_img();
+            if (rootList.kitamuraRootFlg) {
+                if (nextTextNum == 25) { // 好感度の変化
+                    favourableImpression += 10;
+                    kitamuraImage();
+                } else if (nextTextNum == 31) {
+                    favourableImpression -= 30;
+                    kitamuraImage();
+                } else if (nextTextNum == 41) {
+                    favourableImpression += 20;
+                    kitamuraImage();
                 }
-            } else if (root_list.Hashidume_root_flg) {
-                if (next_text_num == 36) {
-                    option_selected(false);
-                } else if (next_text_num == 55) {
-                    favourable_impression += 20;
-                } else if (next_text_num == 67) {
-                    favourable_impression -= 10;
-                    option_selected(false);
-                } else if (next_text_num == 75) {
-                    favourable_impression += 10;
+            } else if (rootList.hashidumeRootFlg) {
+                if (nextTextNum == 36) {
+                    optionSelected(false);
+                } else if (nextTextNum == 55) {
+                    favourableImpression += 20;
+                } else if (nextTextNum == 67) {
+                    favourableImpression -= 10;
+                    optionSelected(false);
+                } else if (nextTextNum == 75) {
+                    favourableImpression += 10;
                 }
-            } else if (root_list.Komatsu_root_flg) {
-                if (next_text_num == 21) {
-                    favourable_impression += 20;
+            } else if (rootList.komatsuRootFlg) {
+                if (nextTextNum == 21) {
+                    favourableImpression += 20;
                 }
-            } else if (root_list.Hukaya_root_flg) {
-                if (next_text_num == 27) {
-                    favourable_impression -= 10;
-                } else if (next_text_num == 43) {
-                    favourable_impression += 20;
+            } else if (rootList.hukayaRootFlg) {
+                if (nextTextNum == 27) {
+                    favourableImpression -= 10;
+                } else if (nextTextNum == 43) {
+                    favourableImpression += 20;
                 }
-            } else if (root_list.Katura_root_flg) {
-                if (next_text_num == 79) {
-                    favourable_impression += 20;
-                    option_selected(false);
-                } else if (next_text_num == 91) {
-                    favourable_impression += 20;
+            } else if (rootList.katuraRootFlg) {
+                if (nextTextNum == 79) {
+                    favourableImpression += 20;
+                    optionSelected(false);
+                } else if (nextTextNum == 91) {
+                    favourableImpression += 20;
                 }
             }
 
-            text_list = [delivery_text_list[1]];
-            option_box2.className = "option_box_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
-            option_box1.style.display = "none"; // 選択していない選択肢を非表示
+            textList = [deliveryTextList[1]];
+            optionBox2.className = "optionBox_animation"; // 選択肢のクラスをアニメーションの設定されているクラスに変更
+            optionBox1.style.display = "none"; // 選択していない選択肢を非表示
 
-            passed_text_list = [document.getElementById("option_text2").textContent];
-            show_text(text_division(text_list));
-            log_add(passed_text_list, option_text_addition);
+            passedTextList = [document.getElementById("optionText2").textContent];
+            showText(textDivision(textList));
+            logAdd(passedTextList, optionTextAddition);
         }
 
         setTimeout(() => {
             document.getElementById("option").style.display = "none"; // 選択肢を遅延して非表示
         }, 750);
     
-        direct_option_flg = false;
-        player_text_flg = false;
-        option_flg = false;
+        directOptionFlg = false;
+        playerTextFlg = false;
+        optionFlg = false;
     }
 }
 
 // キタムラルートのみキャラ画像の変遷
-function Kitamura_img() {
-    let Kitamura_img_url = "../img/character/Kitamura/Kitamura_";
-    let Kitamura_img = document.getElementById("character_img").src;
+function kitamuraImage() {
+    let kitamuraImageUrl = "../img/character/Kitamura/Kitamura_";
+    let kitamuraImageSrc = document.getElementById("characterImage").src;
 
-    Kitamura_img = `${Kitamura_img_url + String(favourable_impression)}%25.png`;
-    document.getElementById("character_img").src = Kitamura_img;
+    kitamuraImageSrc = `${kitamuraImageUrl + String(favourableImpression)}%25.png`;
+    document.getElementById("characterImage").src = kitamuraImageSrc;
 
-    delivery_img = Kitamura_img;
+    deliveryImage = kitamuraImageSrc;
 }
 
 // ハシヅメルートのみネームタグの変更タイミング調整
-function option_selected(bool) {
+function optionSelected(bool) {
     if (bool) {
-        name_tag.textContent = player_name;
+        nameTag.textContent = playerName;
     } else {
-        name_tag.textContent = character_name;
+        nameTag.textContent = characterName;
     }
 }
